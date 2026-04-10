@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: mecaup
+      POSTGRES_USER: mecaup
+      POSTGRES_PASSWORD: mecaup
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql+psycopg://mecaup:mecaup@db:5432/mecaup
+      SECRET_KEY: dev_secret_change_later
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  web:
+    build: ./web
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8000
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  dbdata:
