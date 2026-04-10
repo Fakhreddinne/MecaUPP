@@ -73,7 +73,7 @@ export default function HomePage() {
                 className="h-[320px] w-full rounded-xl object-cover"
                 priority
               />
-              <p align="center" className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-3 text-center text-sm text-muted-foreground">
                Notre atelier MecaUp Station.
               </p>
             </div>
