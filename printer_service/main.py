@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
 from PIL import Image, ImageDraw, ImageFont, ImageWin, UnidentifiedImageError
 from dotenv import load_dotenv
@@ -693,6 +693,11 @@ def healthcheck():
     return {"status": "ok"}
 
 
+@app.get("/pos", response_class=HTMLResponse)
+def pos_interface():
+    return HTMLResponse(content=build_pos_html())
+
+
 ERROR_RESPONSES = {
     400: {"model": ErrorResponse},
     422: {"model": ErrorResponse},
@@ -700,6 +705,630 @@ ERROR_RESPONSES = {
     502: {"model": ErrorResponse},
     503: {"model": ErrorResponse},
 }
+
+POS_DEMO_DATA = {
+    "contact_line": CONTACT_LINE_DEFAULT,
+    "address_line": BUSINESS_CONFIG["address_line"],
+    "kilometrage": "182450",
+    "vehicule_marque": "Peugeot",
+    "vehicule_modele": "208 Allure",
+    "vehicule_annee": "2021",
+    "matricule": "231TU1984",
+    "huile_moteur": "Total Quartz 9000",
+    "viscosite": "5W40",
+    "filtre_huile": "Oui",
+    "filtre_air": "Oui",
+    "filtre_habitacle": "Non",
+    "boite_pont": "Non",
+    "huile_boite": "Aucun",
+    "autre": "Controle freins",
+    "prochain_km": "192450",
+}
+
+
+def build_pos_html() -> str:
+    demo_payload = json.dumps(POS_DEMO_DATA)
+    default_printer_name = json.dumps(DEFAULT_PRINTER_NAME)
+    default_margin = 8
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MecaUP Sticker POS</title>
+  <style>
+    :root {{
+      color-scheme: light;
+      --bg: #f3efe7;
+      --panel: #fffaf2;
+      --panel-strong: #ffffff;
+      --line: #d8cdbd;
+      --ink: #201a14;
+      --muted: #6f6255;
+      --accent: #c96b2c;
+      --accent-dark: #8a4317;
+      --ok: #1e7a52;
+      --error: #b33a3a;
+      --shadow: 0 18px 50px rgba(57, 37, 22, 0.12);
+      --radius: 22px;
+    }}
+
+    * {{ box-sizing: border-box; }}
+
+    body {{
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(201, 107, 44, 0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(91, 132, 119, 0.16), transparent 22%),
+        linear-gradient(180deg, #f8f2e8 0%, var(--bg) 100%);
+    }}
+
+    .shell {{
+      width: min(1360px, calc(100% - 32px));
+      margin: 24px auto;
+      display: grid;
+      grid-template-columns: minmax(340px, 460px) minmax(420px, 1fr);
+      gap: 24px;
+      align-items: start;
+    }}
+
+    .panel {{
+      background: rgba(255, 250, 242, 0.92);
+      border: 1px solid rgba(216, 205, 189, 0.95);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }}
+
+    .form-panel {{
+      padding: 24px;
+      position: sticky;
+      top: 24px;
+    }}
+
+    .preview-panel {{
+      padding: 24px;
+    }}
+
+    .eyebrow {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #f3dfcf;
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }}
+
+    h1 {{
+      margin: 14px 0 8px;
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1;
+    }}
+
+    .subtitle {{
+      margin: 0 0 24px;
+      color: var(--muted);
+      line-height: 1.5;
+    }}
+
+    .controls {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }}
+
+    button {{
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+    }}
+
+    button:hover {{
+      transform: translateY(-1px);
+    }}
+
+    button:disabled {{
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+    }}
+
+    .primary {{
+      background: var(--accent);
+      color: white;
+    }}
+
+    .secondary {{
+      background: #eadfce;
+      color: var(--ink);
+    }}
+
+    .ghost {{
+      background: #f6efe5;
+      color: var(--muted);
+    }}
+
+    .grid {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }}
+
+    .field {{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }}
+
+    .field.full {{
+      grid-column: 1 / -1;
+    }}
+
+    label {{
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }}
+
+    input {{
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font: inherit;
+    }}
+
+    input:focus {{
+      outline: 2px solid rgba(201, 107, 44, 0.18);
+      border-color: var(--accent);
+    }}
+
+    .toolbar {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0 0;
+    }}
+
+    .status {{
+      margin-top: 18px;
+      min-height: 48px;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: #f8f1e7;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }}
+
+    .status.ok {{
+      color: var(--ok);
+      border-color: rgba(30, 122, 82, 0.25);
+      background: rgba(30, 122, 82, 0.08);
+    }}
+
+    .status.error {{
+      color: var(--error);
+      border-color: rgba(179, 58, 58, 0.25);
+      background: rgba(179, 58, 58, 0.08);
+    }}
+
+    .preview-head {{
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+    }}
+
+    .preview-box {{
+      min-height: 640px;
+      border-radius: 26px;
+      border: 1px dashed var(--line);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(247, 239, 227, 0.9)),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(201, 107, 44, 0.04),
+          rgba(201, 107, 44, 0.04) 12px,
+          transparent 12px,
+          transparent 24px
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 20px;
+    }}
+
+    .preview-box img {{
+      width: min(100%, 420px);
+      height: auto;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(32, 26, 20, 0.18);
+      background: white;
+    }}
+
+    .placeholder {{
+      max-width: 360px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.6;
+    }}
+
+    .inline-config {{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }}
+
+    @media (max-width: 1080px) {{
+      .shell {{
+        grid-template-columns: 1fr;
+      }}
+
+      .form-panel {{
+        position: static;
+      }}
+
+      .preview-box {{
+        min-height: 420px;
+      }}
+    }}
+
+    @media (max-width: 640px) {{
+      .shell {{
+        width: min(100% - 20px, 1360px);
+        margin: 10px auto 20px;
+      }}
+
+      .form-panel,
+      .preview-panel {{
+        padding: 18px;
+        border-radius: 18px;
+      }}
+
+      .grid,
+      .inline-config {{
+        grid-template-columns: 1fr;
+      }}
+
+      .preview-box {{
+        min-height: 320px;
+        padding: 12px;
+      }}
+    }}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel form-panel">
+      <div class="eyebrow">Printer Service POS</div>
+      <h1>Sticker counter</h1>
+      <p class="subtitle">Fill the ticket, preview the sticker, then print it from the same screen.</p>
+
+      <div class="controls">
+        <button class="secondary" type="button" id="demoButton">Prefill Demo Data</button>
+        <button class="ghost" type="button" id="clearButton">Clear Form</button>
+      </div>
+
+      <form id="posForm">
+        <div class="grid">
+          <div class="field full">
+            <label for="contact_line">Contact line</label>
+            <input id="contact_line" name="contact_line" />
+          </div>
+
+          <div class="field full">
+            <label for="address_line">Address line</label>
+            <input id="address_line" name="address_line" />
+          </div>
+
+          <div class="field">
+            <label for="kilometrage">Kilometrage</label>
+            <input id="kilometrage" name="kilometrage" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="prochain_km">Next revision km</label>
+            <input id="prochain_km" name="prochain_km" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="vehicule_marque">Vehicle brand</label>
+            <input id="vehicule_marque" name="vehicule_marque" />
+          </div>
+
+          <div class="field">
+            <label for="vehicule_modele">Vehicle model</label>
+            <input id="vehicule_modele" name="vehicule_modele" />
+          </div>
+
+          <div class="field">
+            <label for="vehicule_annee">Vehicle year</label>
+            <input id="vehicule_annee" name="vehicule_annee" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="matricule">Plate</label>
+            <input id="matricule" name="matricule" />
+          </div>
+
+          <div class="field">
+            <label for="huile_moteur">Engine oil</label>
+            <input id="huile_moteur" name="huile_moteur" />
+          </div>
+
+          <div class="field">
+            <label for="viscosite">Viscosity</label>
+            <input id="viscosite" name="viscosite" />
+          </div>
+
+          <div class="field">
+            <label for="filtre_huile">Oil filter</label>
+            <input id="filtre_huile" name="filtre_huile" />
+          </div>
+
+          <div class="field">
+            <label for="filtre_air">Air filter</label>
+            <input id="filtre_air" name="filtre_air" />
+          </div>
+
+          <div class="field">
+            <label for="filtre_habitacle">Cabin filter</label>
+            <input id="filtre_habitacle" name="filtre_habitacle" />
+          </div>
+
+          <div class="field">
+            <label for="boite_pont">Gearbox / differential</label>
+            <input id="boite_pont" name="boite_pont" />
+          </div>
+
+          <div class="field">
+            <label for="huile_boite">Gearbox oil</label>
+            <input id="huile_boite" name="huile_boite" />
+          </div>
+
+          <div class="field">
+            <label for="autre">Other work</label>
+            <input id="autre" name="autre" />
+          </div>
+        </div>
+
+        <div class="inline-config">
+          <div class="field">
+            <label for="printer_name">Printer name</label>
+            <input id="printer_name" name="printer_name" />
+          </div>
+
+          <div class="field">
+            <label for="top_border_margin">Top border margin</label>
+            <input id="top_border_margin" name="top_border_margin" inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="secondary" type="button" id="previewButton">Update Preview</button>
+          <button class="primary" type="submit" id="printButton">Print Sticker</button>
+        </div>
+      </form>
+
+      <div class="status" id="statusBox">Ready. Load sample data or type your own values.</div>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="preview-head">
+        <div>
+          <div class="eyebrow">Live Preview</div>
+          <p class="subtitle">The preview uses the same render endpoint as the printer workflow.</p>
+        </div>
+      </div>
+
+      <div class="preview-box" id="previewBox">
+        <div class="placeholder">
+          Preview will appear here after you click <strong>Update Preview</strong>.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const demoData = {demo_payload};
+    const defaultPrinterName = {default_printer_name};
+    const defaultMargin = "{default_margin}";
+    const form = document.getElementById("posForm");
+    const statusBox = document.getElementById("statusBox");
+    const previewBox = document.getElementById("previewBox");
+    const previewButton = document.getElementById("previewButton");
+    const printButton = document.getElementById("printButton");
+    const demoButton = document.getElementById("demoButton");
+    const clearButton = document.getElementById("clearButton");
+
+    const fieldNames = [
+      "contact_line",
+      "address_line",
+      "kilometrage",
+      "vehicule_marque",
+      "vehicule_modele",
+      "vehicule_annee",
+      "matricule",
+      "huile_moteur",
+      "viscosite",
+      "filtre_huile",
+      "filtre_air",
+      "filtre_habitacle",
+      "boite_pont",
+      "huile_boite",
+      "autre",
+      "prochain_km",
+    ];
+
+    function setStatus(message, kind = "") {{
+      statusBox.className = kind ? `status ${{kind}}` : "status";
+      statusBox.textContent = message;
+    }}
+
+    function setBusy(isBusy) {{
+      previewButton.disabled = isBusy;
+      printButton.disabled = isBusy;
+      demoButton.disabled = isBusy;
+      clearButton.disabled = isBusy;
+    }}
+
+    function writeValues(values) {{
+      fieldNames.forEach((name) => {{
+        const input = form.elements.namedItem(name);
+        if (input) input.value = values[name] ?? "";
+      }});
+    }}
+
+    function resetFormFields() {{
+      writeValues({{}});
+      form.elements.namedItem("printer_name").value = defaultPrinterName;
+      form.elements.namedItem("top_border_margin").value = defaultMargin;
+    }}
+
+    function getStickerData() {{
+      const payload = {{}};
+      fieldNames.forEach((name) => {{
+        payload[name] = String(form.elements.namedItem(name).value || "").trim();
+      }});
+      return payload;
+    }}
+
+    function getPrintPayload() {{
+      return {{
+        printer_name: String(form.elements.namedItem("printer_name").value || "").trim() || defaultPrinterName,
+        top_border_margin: Number.parseInt(form.elements.namedItem("top_border_margin").value || defaultMargin, 10),
+        data: getStickerData(),
+      }};
+    }}
+
+    function validateBeforePrint(payload) {{
+      const numericFields = ["vehicule_annee", "kilometrage", "prochain_km"];
+      for (const field of numericFields) {{
+        if (!payload.data[field] || Number.isNaN(Number.parseInt(payload.data[field], 10))) {{
+          throw new Error(`Field "${{field}}" must be filled with a number before printing.`);
+        }}
+      }}
+
+      if (Number.isNaN(payload.top_border_margin)) {{
+        throw new Error('Top border margin must be a number.');
+      }}
+    }}
+
+    async function updatePreview() {{
+      setBusy(true);
+      setStatus("Rendering preview...");
+
+      try {{
+        const response = await fetch("/stickers/render", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify(getStickerData()),
+        }});
+
+        if (!response.ok) {{
+          const payload = await response.json().catch(() => null);
+          throw new Error(payload?.error?.message || "Preview failed.");
+        }}
+
+        const blob = await response.blob();
+        const imageUrl = URL.createObjectURL(blob);
+        previewBox.innerHTML = "";
+        const image = document.createElement("img");
+        image.src = imageUrl;
+        image.alt = "Sticker preview";
+        previewBox.appendChild(image);
+        setStatus("Preview updated.", "ok");
+      }} catch (error) {{
+        setStatus(error.message || "Preview failed.", "error");
+      }} finally {{
+        setBusy(false);
+      }}
+    }}
+
+    async function printSticker(event) {{
+      event.preventDefault();
+      const payload = getPrintPayload();
+
+      try {{
+        validateBeforePrint(payload);
+      }} catch (error) {{
+        setStatus(error.message, "error");
+        return;
+      }}
+
+      setBusy(true);
+      setStatus("Sending sticker to the printer...");
+
+      try {{
+        const response = await fetch("/stickers/print", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify(payload),
+        }});
+
+        const responseBody = await response.json().catch(() => null);
+        if (!response.ok) {{
+          throw new Error(responseBody?.error?.message || "Print failed.");
+        }}
+
+        const recordId = responseBody?.saved_record_id || "unknown";
+        setStatus(`Printed successfully. Saved record: ${{recordId}}`, "ok");
+        updatePreview();
+      }} catch (error) {{
+        setStatus(error.message || "Print failed.", "error");
+      }} finally {{
+        setBusy(false);
+      }}
+    }}
+
+    demoButton.addEventListener("click", () => {{
+      writeValues(demoData);
+      setStatus("Demo data loaded. You can edit or clear it whenever you want.");
+    }});
+
+    clearButton.addEventListener("click", () => {{
+      resetFormFields();
+      previewBox.innerHTML = `
+        <div class="placeholder">
+          Preview will appear here after you click <strong>Update Preview</strong>.
+        </div>
+      `;
+      setStatus("Form cleared.");
+    }});
+
+    previewButton.addEventListener("click", updatePreview);
+    form.addEventListener("submit", printSticker);
+
+    resetFormFields();
+  </script>
+</body>
+</html>
+"""
 
 
 @app.post(
@@ -752,6 +1381,7 @@ def root():
     return {
         "message": "MecaUP Sticker API",
         "docs": "/docs",
+        "pos_interface": "/pos",
         "render_endpoint": "/stickers/render",
         "print_endpoint": "/stickers/print",
         "print_qr_endpoint": "/stickers/print-qr",

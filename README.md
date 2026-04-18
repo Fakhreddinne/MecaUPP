@@ -69,6 +69,11 @@ pip install -r requirements.txt
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
+Then open:
+
+- Interactive POS UI: `http://127.0.0.1:8000/pos`
+- Swagger docs: `http://127.0.0.1:8000/docs`
+
 Required environment variables:
 
 - `CAR_DATA_API_BASE_URL`
