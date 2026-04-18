@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pillow
+qrcode
+pywin32
+python-dotenv
