@@ -1,13 +1,14 @@
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 from urllib import error as urlerror
 from urllib import parse as urlparse
 from urllib import request as urlrequest
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -30,8 +31,60 @@ DEFAULT_PRINTER_NAME = "VEVOR Y486"
 PRINTER_DPI = 203
 CAR_DATA_API_ENV_VAR = "CAR_DATA_API_BASE_URL"
 SAVE_CAR_DATA_PATH = "/api/cars/save_car_data"
-PREVIEW_QR_TEXT = "http://www.meca-up.tn/carnet/preview"
-QR_BASE_URL = "http://www.meca-up.tn/carnet"
+BUSINESS_CONFIG_PATH = BASE_DIR.parent / "web" / "src" / "data" / "business.json"
+
+DEFAULT_BUSINESS_CONFIG = {
+    "brand_name": "MecaUp Station",
+    "brand_short_name": "MecaUp",
+    "city": "Bizerte",
+    "email": "contact@meca-up.tn",
+    "phone_display": "+216 99 18 18 87",
+    "phone_local_display": "99 18 18 87",
+    "whatsapp_number": "21699181887",
+    "address_line": "Av. Ain Meriam, Bizerte 7057, Tunisie",
+    "address_site": "Av. Ain Meriam, a cote du lycee Gustave Eiffel, Bizerte, Tunisie.",
+    "hours_display": "Lun-Sam 9:00-18:00",
+    "public_base_url": "http://www.meca-up.tn",
+    "maps_embed_url": "",
+    "maps_directions_url": "",
+    "display_timezone": "Africa/Tunis",
+}
+
+
+def load_business_config() -> dict[str, str]:
+    if not BUSINESS_CONFIG_PATH.exists():
+        logger.warning("Business config not found at %s, using defaults", BUSINESS_CONFIG_PATH)
+        return dict(DEFAULT_BUSINESS_CONFIG)
+
+    try:
+        raw_payload = json.loads(BUSINESS_CONFIG_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        logger.warning("Failed to read business config from %s: %s", BUSINESS_CONFIG_PATH, exc)
+        return dict(DEFAULT_BUSINESS_CONFIG)
+
+    if not isinstance(raw_payload, dict):
+        logger.warning("Business config at %s is not an object, using defaults", BUSINESS_CONFIG_PATH)
+        return dict(DEFAULT_BUSINESS_CONFIG)
+
+    business_config = dict(DEFAULT_BUSINESS_CONFIG)
+    for key, value in raw_payload.items():
+        if isinstance(value, str) and key in business_config:
+            business_config[key] = value
+
+    return business_config
+
+
+BUSINESS_CONFIG = load_business_config()
+CONTACT_LINE_DEFAULT = f'{BUSINESS_CONFIG["phone_local_display"]}  |  {BUSINESS_CONFIG["email"]}'
+PUBLIC_BASE_URL = BUSINESS_CONFIG["public_base_url"].rstrip("/")
+PREVIEW_QR_TEXT = f"{PUBLIC_BASE_URL}/carnet/preview"
+QR_BASE_URL = f"{PUBLIC_BASE_URL}/carnet"
+
+try:
+    DISPLAY_TIMEZONE = ZoneInfo(BUSINESS_CONFIG["display_timezone"])
+except ZoneInfoNotFoundError:
+    logger.warning("Unknown timezone %s, falling back to UTC", BUSINESS_CONFIG["display_timezone"])
+    DISPLAY_TIMEZONE = timezone.utc
 
 # Sticker size: 50 x 80 mm at about 203 dpi
 W, H = 380, 620
@@ -126,8 +179,10 @@ class PersistenceError(AppError):
 
 
 class StickerData(BaseModel):
-    contact_line: str = Field(default="99 18 18 87  |  contact@meca-up.tn")
-    address_line: str = Field(default="Av. Ain Meriam, Bizerte 7057, Tunisie")
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    contact_line: str = Field(default=CONTACT_LINE_DEFAULT)
+    address_line: str = Field(default=BUSINESS_CONFIG["address_line"])
     kilometrage: str = Field(default="120000")
     vehicule_marque: str = Field(default="Yamaha")
     vehicule_modele: str = Field(default="Tenere 700")
@@ -322,8 +377,9 @@ def sanitize_sticker_data(data: ResolvedStickerData) -> tuple[ResolvedStickerDat
 
 
 def current_timestamps() -> tuple[str, str]:
-    now = datetime.now()
-    return now.isoformat(), now.strftime("%d/%m/%Y %H:%M")
+    now_utc = datetime.now(timezone.utc)
+    display_date = now_utc.astimezone(DISPLAY_TIMEZONE).strftime("%d/%m/%Y %H:%M")
+    return now_utc.isoformat(), display_date
 
 
 def parse_int_field(value: str, field_name: str) -> int:
@@ -361,12 +417,12 @@ def save_car_data(data: StickerData, iso_date_heure: str) -> str:
     save_url = get_save_car_data_url()
     payload = {
         "matricule": data.matricule,
+        "vehicule_marque": data.vehicule_marque,
+        "vehicule_modele": data.vehicule_modele,
+        "vehicule_annee": parse_int_field(data.vehicule_annee, "vehicule_annee"),
         "maintenance_event": {
             "date_heure": iso_date_heure,
             "kilometrage": parse_int_field(data.kilometrage, "kilometrage"),
-            "vehicule_marque": data.vehicule_marque,
-            "vehicule_modele": data.vehicule_modele,
-            "vehicule_annee": data.vehicule_annee,
             "huile_moteur": data.huile_moteur,
             "viscosite": data.viscosite,
             "filtre_huile": data.filtre_huile,

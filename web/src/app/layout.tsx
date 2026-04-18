@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { business } from "@/lib/business";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,13 +13,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "MecaUp Station | Services Auto à Bizerte",
-  description:
-    "Entretien automobile premium à Bizerte. Vidange, freinage, diagnostic, detailing. Carnet d'entretien digital via QR code.",
-  icons: {
-    icon: "/icon.png", // si tu as mis icon.png dans src/app, tu peux aussi enlever cette ligne
-  },
+export const metadata: Metadata = {
+  title: `${business.brand_name} | Services Auto a ${business.city}`,
+  description: `Entretien automobile premium a ${business.city}. Vidange, freinage, diagnostic, detailing et carnet d'entretien digital via QR code.`,
 };
 
 export default function RootLayout({
@@ -27,12 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+    <html lang="fr">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }

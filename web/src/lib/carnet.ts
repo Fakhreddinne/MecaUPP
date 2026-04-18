@@ -1,0 +1,89 @@
+import { business } from "@/lib/business";
+
+export type MaintenanceEvent = {
+  date_heure: string;
+  kilometrage: number;
+  huile_moteur: string;
+  viscosite: string;
+  filtre_huile: string;
+  filtre_air: string;
+  filtre_habitacle: string;
+  boite_pont: string;
+  huile_boite: string;
+  autre: string;
+  prochain_km: number;
+};
+
+export type Car = {
+  _id: string;
+  matricule: string;
+  image_path?: string | null;
+  vehicule_marque?: string | null;
+  vehicule_modele?: string | null;
+  vehicule_annee?: number | null;
+  maintenance: MaintenanceEvent[];
+  created_at: string;
+  updated_at: string;
+};
+
+function normalizeDateValue(value?: string): string | null {
+  if (!value) {
+    return null;
+  }
+
+  return value.includes("T") ? value : value.replace(" ", "T");
+}
+
+function toTimestamp(value?: string): number {
+  const normalized = normalizeDateValue(value);
+  if (!normalized) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const parsed = Date.parse(normalized);
+  return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
+}
+
+export function formatDate(value?: string): string {
+  const normalized = normalizeDateValue(value);
+  if (!normalized) {
+    return "-";
+  }
+
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) {
+    return value || "-";
+  }
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    timeZone: business.display_timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
+}
+
+export function formatKilometers(value: number | null | undefined): string {
+  if (typeof value !== "number") {
+    return "-";
+  }
+
+  return `${value.toLocaleString("fr-FR")} km`;
+}
+
+export function sortMaintenanceEvents(events: MaintenanceEvent[]): MaintenanceEvent[] {
+  return [...events].sort((a, b) => toTimestamp(b.date_heure) - toTimestamp(a.date_heure));
+}
+
+export function computeNextService(event?: MaintenanceEvent | null): { km: number | null; date: string | null } {
+  if (!event) {
+    return { km: null, date: null };
+  }
+
+  return {
+    km: typeof event.prochain_km === "number" ? event.prochain_km : null,
+    date: event.date_heure || null,
+  };
+}

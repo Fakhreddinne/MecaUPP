@@ -1,56 +1,31 @@
-from datetime import date, datetime
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-class VehicleCreate(BaseModel):
-    label: str
-    plate: str | None = None
-    owner_name: str | None = None
-    owner_phone: str | None = None
-
-class VehicleOut(BaseModel):
-    token: str
-    label: str
-    plate: str | None = None
-    owner_name: str | None = None
-    owner_phone: str | None = None
-
-class ServiceCreate(BaseModel):
-    token: str
-    date: date
-    km: int
-    title: str
-    details: str | None = None
-
-    # simple règle: prochain entretien à +10000 km et +6 mois (tu pourras changer)
-    next_km: int | None = None
-    next_date: date | None = None
-
-class CarnetOut(BaseModel):
-    vehicle: dict
-    next: dict
-    history: list
-
 
 class MaintenanceEventPayload(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     date_heure: datetime
-    kilometrage: int
-    vehicule_marque: str
-    vehicule_modele: str
-    vehicule_annee: int
-    huile_moteur: str
-    viscosite: str
-    filtre_huile: str
-    filtre_air: str
-    filtre_habitacle: str
-    boite_pont: str
-    huile_boite: str
-    autre: str
-    prochain_km: int
+    kilometrage: int = Field(ge=0)
+    huile_moteur: str = Field(min_length=1)
+    viscosite: str = Field(min_length=1)
+    filtre_huile: str = Field(min_length=1)
+    filtre_air: str = Field(min_length=1)
+    filtre_habitacle: str = Field(min_length=1)
+    boite_pont: str = Field(min_length=1)
+    huile_boite: str = Field(min_length=1)
+    autre: str = Field(min_length=1)
+    prochain_km: int = Field(ge=0)
 
 
 class MaintenanceEventCreate(BaseModel):
-    matricule: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    matricule: str = Field(min_length=1)
+    vehicule_marque: str = Field(min_length=1)
+    vehicule_modele: str = Field(min_length=1)
+    vehicule_annee: int = Field(ge=1886)
     maintenance_event: MaintenanceEventPayload
 
 
@@ -60,6 +35,9 @@ class CarOut(BaseModel):
     id: str = Field(alias="_id")
     matricule: str
     image_path: str | None = None
-    maintenance: list[MaintenanceEventPayload]
+    vehicule_marque: str | None = None
+    vehicule_modele: str | None = None
+    vehicule_annee: int | None = None
+    maintenance: list[MaintenanceEventPayload] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime

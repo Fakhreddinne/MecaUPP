@@ -47,6 +47,7 @@ def ensure_static_dirs() -> None:
 def serialize_car_document(document: Dict[str, Any]) -> Dict[str, Any]:
     serialized = dict(document)
     serialized["_id"] = str(serialized["_id"])
+    serialized["image_path"] = normalize_image_path(serialized.get("image_path"))
     return serialized
 
 
@@ -97,8 +98,7 @@ def fetch_signed_car_image_url(make: str, model: str, year: int, image_format: s
         }
     )
     endpoint = f"{settings.carimages_base_url.rstrip('/')}/api/v1/signed-url?{query}"
-
-    print(f"Fetching signed image URL from: {endpoint}")
+    logger.debug("Fetching car image for %s %s %s", make, model, year)
 
     request = Request(endpoint, headers={"Accept": "application/json"})
     with urlopen(request, timeout=15) as response:
@@ -165,7 +165,7 @@ def download_car_image(car_id: ObjectId, make: str, model: str, year: int) -> st
 def ensure_car_image(
     cars_collection: Any,
     saved_car: Dict[str, Any],
-    maintenance_event: Dict[str, Any],
+    vehicle_details: Dict[str, Any],
 ) -> Dict[str, Any]:
     existing_image_path = normalize_image_path(saved_car.get("image_path"))
     if existing_image_path:
@@ -174,9 +174,9 @@ def ensure_car_image(
 
     downloaded_image_path = download_car_image(
         car_id=saved_car["_id"],
-        make=maintenance_event["vehicule_marque"],
-        model=maintenance_event["vehicule_modele"],
-        year=maintenance_event["vehicule_annee"],
+        make=vehicle_details["vehicule_marque"],
+        model=vehicle_details["vehicule_modele"],
+        year=vehicle_details["vehicule_annee"],
     )
     if not downloaded_image_path:
         return saved_car
@@ -213,14 +213,16 @@ def get_car_by_id(car_id: str) -> Dict[str, Any]:
 
 @app.post("/api/cars/save_car_data", response_model=CarOut)
 def save_car_data(payload: MaintenanceEventCreate) -> Dict[str, Any]:
-    matricule = payload.matricule.strip()
-    if not matricule:
-        raise HTTPException(status_code=400, detail="Matricule cannot be blank")
-
     database = get_database()
     cars_collection = database["cars"]
     now = datetime.now(timezone.utc)
     maintenance_event = payload.maintenance_event.model_dump(mode="python")
+    vehicle_details = {
+        "vehicule_marque": payload.vehicule_marque,
+        "vehicule_modele": payload.vehicule_modele,
+        "vehicule_annee": payload.vehicule_annee,
+    }
+    matricule = payload.matricule
 
     existing_car = cars_collection.find_one({"matricule": matricule})
 
@@ -229,6 +231,7 @@ def save_car_data(payload: MaintenanceEventCreate) -> Dict[str, Any]:
             {
                 "matricule": matricule,
                 "image_path": None,
+                **vehicle_details,
                 "maintenance": [maintenance_event],
                 "created_at": now,
                 "updated_at": now,
@@ -240,7 +243,10 @@ def save_car_data(payload: MaintenanceEventCreate) -> Dict[str, Any]:
             {"_id": existing_car["_id"]},
             {
                 "$push": {"maintenance": maintenance_event},
-                "$set": {"updated_at": now},
+                "$set": {
+                    **vehicle_details,
+                    "updated_at": now,
+                },
             },
         )
         saved_car = cars_collection.find_one({"_id": existing_car["_id"]})
@@ -248,7 +254,7 @@ def save_car_data(payload: MaintenanceEventCreate) -> Dict[str, Any]:
     if saved_car is None:
         raise HTTPException(status_code=500, detail="Failed to save car data")
 
-    saved_car = ensure_car_image(cars_collection, saved_car, maintenance_event)
+    saved_car = ensure_car_image(cars_collection, saved_car, vehicle_details)
     return serialize_car_document(saved_car)
 
 
