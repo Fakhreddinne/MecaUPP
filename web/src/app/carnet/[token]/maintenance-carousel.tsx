@@ -42,10 +42,12 @@ export function MaintenanceCarousel({ events }: MaintenanceCarouselProps) {
   }
 
   const safeActiveIndex = Math.min(activeIndex, events.length - 1);
+  const isAtStart = safeActiveIndex === 0;
+  const isAtEnd = safeActiveIndex === events.length - 1;
 
   const goTo = (nextIndex: number) => {
-    const normalizedIndex = (nextIndex + events.length) % events.length;
-    setActiveIndex(normalizedIndex);
+    const clampedIndex = Math.max(0, Math.min(nextIndex, events.length - 1));
+    setActiveIndex(clampedIndex);
   };
 
   return (
@@ -64,7 +66,8 @@ export function MaintenanceCarousel({ events }: MaintenanceCarouselProps) {
             type="button"
             onClick={() => goTo(safeActiveIndex - 1)}
             aria-label="Intervention precedente"
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/20 text-lg font-black text-white transition hover:border-sky-300/40 hover:bg-sky-300/10"
+            disabled={isAtStart}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/20 text-lg font-black text-white transition enabled:hover:border-sky-300/40 enabled:hover:bg-sky-300/10 disabled:cursor-not-allowed disabled:opacity-35"
           >
             {"<"}
           </button>
@@ -72,7 +75,8 @@ export function MaintenanceCarousel({ events }: MaintenanceCarouselProps) {
             type="button"
             onClick={() => goTo(safeActiveIndex + 1)}
             aria-label="Intervention suivante"
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/20 text-lg font-black text-white transition hover:border-sky-300/40 hover:bg-sky-300/10"
+            disabled={isAtEnd}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/20 text-lg font-black text-white transition enabled:hover:border-sky-300/40 enabled:hover:bg-sky-300/10 disabled:cursor-not-allowed disabled:opacity-35"
           >
             {">"}
           </button>
@@ -95,12 +99,14 @@ export function MaintenanceCarousel({ events }: MaintenanceCarouselProps) {
             return;
           }
 
-          if (deltaX < 0) {
+          if (deltaX < 0 && !isAtEnd) {
             goTo(safeActiveIndex + 1);
             return;
           }
 
-          goTo(safeActiveIndex - 1);
+          if (deltaX > 0 && !isAtStart) {
+            goTo(safeActiveIndex - 1);
+          }
         }}
       >
         <div

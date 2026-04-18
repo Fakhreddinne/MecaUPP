@@ -74,12 +74,12 @@ function TunisianPlate({ immat }: { immat: string }) {
   return (
     <div className="w-full max-w-[420px] rounded-[24px] border-[6px] border-neutral-950 bg-white p-3 text-neutral-950 shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center rounded-[18px] border border-black/10 px-5 py-4">
-        <div className="text-center text-4xl font-black tracking-[0.24em] md:text-5xl">{left}</div>
+        <div className="text-center text-[2rem] font-black tracking-[0.16em] md:text-[2.6rem]">{left}</div>
         <div className="px-3 text-center">
           <div className="text-sm font-black">TN</div>
-          <div className="text-2xl font-black leading-none">تونس</div>
+          <div className="text-[1.6rem] font-black leading-none md:text-[1.9rem]">تونس</div>
         </div>
-        <div className="text-center text-4xl font-black tracking-[0.28em] md:text-5xl">{right}</div>
+        <div className="text-center text-[2rem] font-black tracking-[0.18em] md:text-[2.6rem]">{right}</div>
       </div>
     </div>
   );
@@ -171,9 +171,9 @@ export default async function CarnetPage({
               <div className="text-lg font-semibold text-white/92">{business.brand_name}</div>
             </div>
           </div>
-          <div className="rounded-full border border-sky-400/35 bg-sky-400/12 px-4 py-2 text-sm font-bold text-white/90">
+          {/* <div className="rounded-full border border-sky-400/35 bg-sky-400/12 px-4 py-2 text-sm font-bold text-white/90">
             ID {carId}
-          </div>
+          </div> */}
         </div>
 
         <section className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_360px]">
@@ -226,7 +226,7 @@ export default async function CarnetPage({
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.04]">
+              {/* <div className="overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.04]">
                 {vehicleImage ? (
                   <div className="relative h-full min-h-[260px]">
                     <Image
@@ -245,7 +245,7 @@ export default async function CarnetPage({
                     Image vehicule non configuree
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
 

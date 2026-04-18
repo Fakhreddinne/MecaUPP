@@ -77,6 +77,7 @@ Notes:
 
 - The printer service uses `pywin32`, so printing is Windows-specific.
 - Sticker QR URLs and contact defaults are derived from `web/src/data/business.json`.
+- In Docker, the web app should use `http://api:8000` to reach the API over the compose network.
 
 ## Useful Paths
 
