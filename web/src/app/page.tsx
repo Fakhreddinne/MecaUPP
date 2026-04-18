@@ -66,7 +66,7 @@ export default function HomePage() {
 
             <div className="rounded-2xl border bg-muted p-6">
               <Image
-                src="/facade.png"
+                src="/Facade.png"
                 alt="Façade de l'atelier MecaUp"
                 width={1200}
                 height={800}

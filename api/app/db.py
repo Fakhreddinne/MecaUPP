@@ -1,10 +1,31 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from __future__ import annotations
 
-DATABASE_URL = "sqlite:///./mecaup.db"
+from pymongo import MongoClient
+from pymongo.database import Database
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from config import settings
 
-class Base(DeclarativeBase):
-    pass
+_client: MongoClient | None = None
+
+
+def get_client() -> MongoClient:
+    global _client
+    if _client is None:
+        _client = MongoClient(settings.mongodb_url, serverSelectionTimeoutMS=5000)
+    return _client
+
+
+def get_database() -> Database:
+    return get_client()[settings.mongodb_db]
+
+
+def ping_mongodb() -> bool:
+    get_client().admin.command("ping")
+    return True
+
+
+def close_client() -> None:
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None
