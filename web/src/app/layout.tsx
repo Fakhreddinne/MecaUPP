@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { business } from "@/lib/business";
+import type { Metadata } from "next";
+import { LocaleProvider } from "@/components/locale-provider";
+import { getI18n } from "@/lib/i18n/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,19 +14,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: `${business.brand_name} | Services Auto a ${business.city}`,
-  description: `Entretien automobile premium a ${business.city}. Vidange, freinage, diagnostic, detailing et carnet d'entretien digital via QR code.`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { dictionary } = await getI18n();
 
-export default function RootLayout({
+  return {
+    title: dictionary.metadata.title,
+    description: dictionary.metadata.description,
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { locale, lang, dir, dictionary } = await getI18n();
+
   return (
-    <html lang="fr">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    <html lang={lang} dir={dir} suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <LocaleProvider initialLocale={locale} messages={dictionary}>
+          {children}
+        </LocaleProvider>
+      </body>
     </html>
   );
 }

@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "title": "{{brand_name}} | Services Auto a {{city}}",
+    "description": "Entretien automobile premium a {{city}}. Vidange, freinage, diagnostic, detailing et carnet d'entretien digital via QR code."
+  },
+  "languageSwitcher": {
+    "label": "Langue",
+    "shortLabel": "Langue"
+  },
+  "landing": {
+    "nav": {
+      "services": "Services",
+      "contact": "Contact",
+      "location": "Localisation"
+    },
+    "cta": {
+      "book": "Prendre RDV",
+      "viewServices": "Voir nos services",
+      "findUs": "Nous trouver",
+      "whatsapp": "Envoyer sur WhatsApp",
+      "email": "Envoyer un message",
+      "directions": "Itineraire"
+    },
+    "hero": {
+      "title": "Entretien auto clair, suivi digital, service premium.",
+      "description": "Chaque intervention est tracee dans votre carnet d'entretien accessible par QR code.",
+      "workshopAlt": "Facade de l'atelier {{brand_name}}",
+      "workshopCaption": "Notre atelier {{brand_name}}, a {{city}}."
+    },
+    "servicesIntro": {
+      "title": "Services",
+      "description": "Des prestations essentielles, avec tracabilite dans votre carnet."
+    },
+    "services": [
+      { "title": "Vidange & filtres", "desc": "Huile, filtre a huile, air et habitacle." },
+      { "title": "Freinage", "desc": "Plaquettes, disques, purge et controle securite." },
+      { "title": "Reparation pare-brise", "desc": "Fissures, rayures et polissage." },
+      { "title": "Diagnostic", "desc": "Valise, voyants et controle electronique." },
+      { "title": "Entretien complet", "desc": "Revision constructeur et check-up global." },
+      { "title": "Climatisation", "desc": "Recharge, detection de fuite et desinfection." },
+      { "title": "Lavage / detailing", "desc": "Nettoyage interieur et exterieur premium." }
+    ],
+    "highlights": [
+      { "title": "Transparence", "desc": "Details clairs et kilometrage conserve." },
+      { "title": "Qualite", "desc": "Pieces, huiles et consommables suivis." },
+      { "title": "Suivi", "desc": "Prochain entretien disponible par QR code." }
+    ],
+    "contact": {
+      "title": "Contact",
+      "phone": "Telephone",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "hours": "Horaires"
+    },
+    "location": {
+      "title": "Localisation"
+    },
+    "footer": {
+      "rights": "Tous droits reserves."
+    },
+    "messages": {
+      "whatsapp": "Bonjour {{brand_name}}, je veux un rendez-vous.",
+      "emailSubject": "Demande de rendez-vous - {{brand_name}}"
+    }
+  },
+  "carnet": {
+    "brand": {
+      "digitalBooklet": "Carnet digital"
+    },
+    "errors": {
+      "requestId": "Identifiant demande",
+      "notFoundTitle": "Vehicule introuvable",
+      "notFoundMessage": "Aucun vehicule ne correspond a cet identifiant. Verifie le lien utilise.",
+      "invalidIdTitle": "Identifiant invalide",
+      "invalidIdMessage": "L'identifiant du vehicule n'a pas un format MongoDB valide.",
+      "serviceUnavailableTitle": "Service indisponible",
+      "serviceUnavailableMessage": "Le service vehicule est indisponible pour le moment.",
+      "apiUnavailableMessage": "Impossible de joindre l'API vehicule."
+    },
+    "hero": {
+      "vehicleLabel": "Vehicule",
+      "vehicleSection": "Vehicule",
+      "description": "Historique centralise, prochaine revision visible en un coup d'oeil et carnet accessible depuis le QR code de l'atelier.",
+      "registration": "Immatriculation",
+      "year": "Annee",
+      "nextService": "Prochain entretien",
+      "notDefined": "Non defini",
+      "basedOnLastService": "Base sur la derniere intervention: {date}",
+      "creation": "Creation",
+      "creationHint": "Premier enregistrement du vehicule",
+      "updated": "Mise a jour",
+      "updatedHint": "Derniere synchronisation backend"
+    },
+    "summary": {
+      "title": "Resume",
+      "latestService": "Derniere intervention",
+      "none": "Aucune intervention",
+      "timeline": "Chronologie",
+      "bookletCreated": "Creation du carnet",
+      "bookletUpdated": "Derniere mise a jour"
+    },
+    "history": {
+      "eyebrow": "Historique d'entretien",
+      "title": "Interventions detaillees",
+      "countSingle": "{count} intervention",
+      "countPlural": "{count} interventions"
+    },
+    "carousel": {
+      "title": "Historique",
+      "slideTitle": "Intervention {count}",
+      "countSingleRecorded": "{count} intervention enregistree",
+      "countPluralRecorded": "{count} interventions enregistrees",
+      "previous": "Intervention precedente",
+      "next": "Intervention suivante",
+      "date": "Date intervention",
+      "empty": "Aucun entretien enregistre pour ce carnet.",
+      "emptyDetails": "Aucun detail enregistre.",
+      "goTo": "Afficher l'intervention {count}"
+    },
+    "detailLabels": {
+      "huile_moteur": "Huile moteur",
+      "viscosite": "Viscosite",
+      "filtre_huile": "Filtre a huile",
+      "filtre_air": "Filtre a air",
+      "filtre_habitacle": "Filtre habitacle",
+      "boite_pont": "Boite / pont",
+      "huile_boite": "Huile boite",
+      "autre": "Autre",
+      "prochain_km": "Prochain entretien"
+    }
+  }
+}

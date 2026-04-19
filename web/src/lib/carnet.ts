@@ -1,4 +1,5 @@
 import { business } from "@/lib/business";
+import { localeConfig, type Locale } from "@/lib/i18n/config";
 
 export type MaintenanceEvent = {
   date_heure: string;
@@ -44,7 +45,7 @@ function toTimestamp(value?: string): number {
   return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
 }
 
-export function formatDate(value?: string): string {
+export function formatDate(value: string | undefined, locale: Locale): string {
   const normalized = normalizeDateValue(value);
   if (!normalized) {
     return "-";
@@ -55,7 +56,7 @@ export function formatDate(value?: string): string {
     return value || "-";
   }
 
-  return new Intl.DateTimeFormat("fr-FR", {
+  return new Intl.DateTimeFormat(localeConfig.locales[locale].formatLocale, {
     timeZone: business.display_timezone,
     year: "numeric",
     month: "2-digit",
@@ -65,12 +66,12 @@ export function formatDate(value?: string): string {
   }).format(parsed);
 }
 
-export function formatKilometers(value: number | null | undefined): string {
+export function formatKilometers(value: number | null | undefined, locale: Locale): string {
   if (typeof value !== "number") {
     return "-";
   }
 
-  return `${value.toLocaleString("fr-FR")} km`;
+  return `${value.toLocaleString(localeConfig.locales[locale].formatLocale)} km`;
 }
 
 export function sortMaintenanceEvents(events: MaintenanceEvent[]): MaintenanceEvent[] {

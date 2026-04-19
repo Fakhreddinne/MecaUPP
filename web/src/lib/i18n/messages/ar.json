@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "title": "{{brand_name}} | خدمات السيارات في {{city}}",
+    "description": "صيانة سيارات بريميوم في {{city}}. فيدانج، فرانات، دياڭنوستيك، ديتايينغ وكارنيه صيانة ديجيتال بالـ QR code."
+  },
+  "languageSwitcher": {
+    "label": "اللغة",
+    "shortLabel": "اللغة"
+  },
+  "landing": {
+    "nav": {
+      "services": "الخدمات",
+      "contact": "اتصال",
+      "location": "الموقع"
+    },
+    "cta": {
+      "book": "خوذ موعد",
+      "viewServices": "شوف الخدمات",
+      "findUs": "القانا",
+      "whatsapp": "ابعث على واتساب",
+      "email": "ابعث ميساج",
+      "directions": "الاتجاهات"
+    },
+    "hero": {
+      "title": "صيانة واضحة، متابعة ديجيتال، وخدمة بريميوم.",
+      "description": "كل تدخل يتسجل في كارنيه الصيانة متاعك وتنجم توصله بالـ QR code.",
+      "workshopAlt": "واجهة ورشة {{brand_name}}",
+      "workshopCaption": "ورشتنا {{brand_name}} في {{city}}."
+    },
+    "servicesIntro": {
+      "title": "الخدمات",
+      "description": "خدمات اساسية مع تتبع كامل في كارنيه الصيانة متاعك."
+    },
+    "services": [
+      { "title": "فيدانج وفلترات", "desc": "زيت موتور، فلتر زيت، فلتر هواء وفلتر كابينة." },
+      { "title": "فرانات", "desc": "بلاكات، ديسكات، purge ومراقبة سلامة." },
+      { "title": "تصليح بريبريز", "desc": "شقوق، خدوش وتلميع." },
+      { "title": "دياڭنوستيك", "desc": "فاليس، voyants وفحص الكتروني." },
+      { "title": "صيانة كاملة", "desc": "Revision constructeur وcheck-up شامل." },
+      { "title": "كليم", "desc": "شارج، كشف fuite وتعقيم." },
+      { "title": "غسيل / detailing", "desc": "تنظيف داخلي وخارجي بريميوم." }
+    ],
+    "highlights": [
+      { "title": "وضوح", "desc": "التفاصيل واضحة والكيلومتراج محفوظ." },
+      { "title": "جودة", "desc": "القطع، الزيوت والمواد الاستهلاكية متتبعة." },
+      { "title": "متابعة", "desc": "الصيانة الجاية تلقاها بالـ QR code." }
+    ],
+    "contact": {
+      "title": "اتصال",
+      "phone": "تليفون",
+      "whatsapp": "واتساب",
+      "email": "ايميل",
+      "hours": "الاوقات"
+    },
+    "location": {
+      "title": "الموقع"
+    },
+    "footer": {
+      "rights": "جميع الحقوق محفوظة."
+    },
+    "messages": {
+      "whatsapp": "عسلامة {{brand_name}}، نحب ناخذ موعد.",
+      "emailSubject": "طلب موعد - {{brand_name}}"
+    }
+  },
+  "carnet": {
+    "brand": {
+      "digitalBooklet": "كارنيه ديجيتال"
+    },
+    "errors": {
+      "requestId": "معرّف الطلب",
+      "notFoundTitle": "ما لقيناش الكرهبة",
+      "notFoundMessage": "حتى كرهبة ما توافقش المعرّف هذا. رجع شوف الرابط اللي استعملتو.",
+      "invalidIdTitle": "معرّف غير صالح",
+      "invalidIdMessage": "معرّف الكرهبة ما هوش بصيغة MongoDB صحيحة.",
+      "serviceUnavailableTitle": "السيرفيس موش متاح",
+      "serviceUnavailableMessage": "سيرفيس الكرهبة موش متاح توة.",
+      "apiUnavailableMessage": "ما نجمنيش نوصلو لـ API متاع الكرهبة."
+    },
+    "hero": {
+      "vehicleLabel": "كرهبة",
+      "vehicleSection": "الكرهبة",
+      "description": "تاريخ الصيانة الكل في بلاصة وحدة، والصيانة الجاية باينة من اول نظرة، والكارنيه متاح بالـ QR code متاع الورشة.",
+      "registration": "المنجم",
+      "year": "الموديل",
+      "nextService": "الصيانة الجاية",
+      "notDefined": "موش محدد",
+      "basedOnLastService": "مبني على اخر تدخل: {date}",
+      "creation": "الانشاء",
+      "creationHint": "اول تسجيل للكرهبة",
+      "updated": "اخر تحديث",
+      "updatedHint": "اخر مزامنة من الباك"
+    },
+    "summary": {
+      "title": "الخلاصة",
+      "latestService": "اخر تدخل",
+      "none": "ما فما حتى تدخل",
+      "timeline": "التسلسل",
+      "bookletCreated": "تعمل الكارنيه",
+      "bookletUpdated": "اخر تحديث"
+    },
+    "history": {
+      "eyebrow": "تاريخ الصيانة",
+      "title": "التدخلات بالتفصيل",
+      "countSingle": "{count} تدخل",
+      "countPlural": "{count} تدخلات"
+    },
+    "carousel": {
+      "title": "التاريخ",
+      "slideTitle": "تدخل {count}",
+      "countSingleRecorded": "{count} تدخل متسجل",
+      "countPluralRecorded": "{count} تدخلات متسجلين",
+      "previous": "التدخل اللي قبل",
+      "next": "التدخل اللي بعد",
+      "date": "تاريخ التدخل",
+      "empty": "ما فما حتى صيانة متسجلة في الكارنيه هذا.",
+      "emptyDetails": "ما فما حتى تفاصيل متسجلة.",
+      "goTo": "اعرض التدخل {count}"
+    },
+    "detailLabels": {
+      "huile_moteur": "زيت موتور",
+      "viscosite": "اللزوجة",
+      "filtre_huile": "فلتر زيت",
+      "filtre_air": "فلتر هواء",
+      "filtre_habitacle": "فلتر كابينة",
+      "boite_pont": "بواطة / pont",
+      "huile_boite": "زيت بواطة",
+      "autre": "اخر",
+      "prochain_km": "الصيانة الجاية"
+    }
+  }
+}

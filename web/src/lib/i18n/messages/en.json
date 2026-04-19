@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "title": "{{brand_name}} | Auto Services in {{city}}",
+    "description": "Premium car care in {{city}}. Oil changes, brakes, diagnostics, detailing, and a digital maintenance booklet via QR code."
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "shortLabel": "Language"
+  },
+  "landing": {
+    "nav": {
+      "services": "Services",
+      "contact": "Contact",
+      "location": "Location"
+    },
+    "cta": {
+      "book": "Book Now",
+      "viewServices": "See our services",
+      "findUs": "Find us",
+      "whatsapp": "Send on WhatsApp",
+      "email": "Send a message",
+      "directions": "Get directions"
+    },
+    "hero": {
+      "title": "Clear car care, digital tracking, premium service.",
+      "description": "Every service visit is logged in your maintenance booklet, accessible by QR code.",
+      "workshopAlt": "{{brand_name}} workshop front",
+      "workshopCaption": "Our {{brand_name}} workshop in {{city}}."
+    },
+    "servicesIntro": {
+      "title": "Services",
+      "description": "Essential services with full traceability in your maintenance booklet."
+    },
+    "services": [
+      { "title": "Oil change & filters", "desc": "Oil, oil filter, air filter, and cabin filter." },
+      { "title": "Brakes", "desc": "Pads, discs, bleeding, and safety inspection." },
+      { "title": "Windshield repair", "desc": "Cracks, scratches, and polishing." },
+      { "title": "Diagnostics", "desc": "Scan tool, warning lights, and electronic checks." },
+      { "title": "Full service", "desc": "Manufacturer service and full vehicle check-up." },
+      { "title": "Air conditioning", "desc": "Recharge, leak detection, and disinfection." },
+      { "title": "Wash / detailing", "desc": "Premium interior and exterior cleaning." }
+    ],
+    "highlights": [
+      { "title": "Transparency", "desc": "Clear details and mileage history kept safely." },
+      { "title": "Quality", "desc": "Tracked parts, oils, and consumables." },
+      { "title": "Follow-up", "desc": "Your next service is available through the QR code." }
+    ],
+    "contact": {
+      "title": "Contact",
+      "phone": "Phone",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "hours": "Hours"
+    },
+    "location": {
+      "title": "Location"
+    },
+    "footer": {
+      "rights": "All rights reserved."
+    },
+    "messages": {
+      "whatsapp": "Hello {{brand_name}}, I would like to book an appointment.",
+      "emailSubject": "Appointment request - {{brand_name}}"
+    }
+  },
+  "carnet": {
+    "brand": {
+      "digitalBooklet": "Digital booklet"
+    },
+    "errors": {
+      "requestId": "Request ID",
+      "notFoundTitle": "Vehicle not found",
+      "notFoundMessage": "No vehicle matches this identifier. Please check the link you used.",
+      "invalidIdTitle": "Invalid identifier",
+      "invalidIdMessage": "The vehicle identifier is not a valid MongoDB format.",
+      "serviceUnavailableTitle": "Service unavailable",
+      "serviceUnavailableMessage": "The vehicle service is currently unavailable.",
+      "apiUnavailableMessage": "Unable to reach the vehicle API."
+    },
+    "hero": {
+      "vehicleLabel": "Vehicle",
+      "vehicleSection": "Vehicle",
+      "description": "Centralized history, the next service visible at a glance, and the booklet available from the workshop QR code.",
+      "registration": "Registration",
+      "year": "Year",
+      "nextService": "Next service",
+      "notDefined": "Not set",
+      "basedOnLastService": "Based on the latest service: {date}",
+      "creation": "Created",
+      "creationHint": "First vehicle record",
+      "updated": "Updated",
+      "updatedHint": "Latest backend sync"
+    },
+    "summary": {
+      "title": "Summary",
+      "latestService": "Latest service",
+      "none": "No service yet",
+      "timeline": "Timeline",
+      "bookletCreated": "Booklet created",
+      "bookletUpdated": "Last update"
+    },
+    "history": {
+      "eyebrow": "Maintenance history",
+      "title": "Detailed services",
+      "countSingle": "{count} service",
+      "countPlural": "{count} services"
+    },
+    "carousel": {
+      "title": "History",
+      "slideTitle": "Service {count}",
+      "countSingleRecorded": "{count} service recorded",
+      "countPluralRecorded": "{count} services recorded",
+      "previous": "Previous service",
+      "next": "Next service",
+      "date": "Service date",
+      "empty": "No maintenance record found for this booklet.",
+      "emptyDetails": "No details recorded.",
+      "goTo": "Show service {count}"
+    },
+    "detailLabels": {
+      "huile_moteur": "Engine oil",
+      "viscosite": "Viscosity",
+      "filtre_huile": "Oil filter",
+      "filtre_air": "Air filter",
+      "filtre_habitacle": "Cabin filter",
+      "boite_pont": "Gearbox / axle",
+      "huile_boite": "Gearbox oil",
+      "autre": "Other",
+      "prochain_km": "Next service"
+    }
+  }
+}
