@@ -111,6 +111,8 @@ STATIC_STICKER_DEFAULTS = {
     "footer": "Merci de votre visite, a bientot !",
 }
 
+CAR_TYPE_OPTIONS = ("TUN", "RS", "REM", "AA", "MOTO", "ES", "TRAC")
+
 
 class AppError(Exception):
     def __init__(
@@ -187,6 +189,7 @@ class StickerData(BaseModel):
     vehicule_marque: str = Field(default="Yamaha")
     vehicule_modele: str = Field(default="Tenere 700")
     vehicule_annee: str = Field(default="")
+    type: str = Field(default="TUN")
     matricule: str = Field(default="123TU4565")
     huile_moteur: str = Field(default="Total Quartz 9000")
     viscosite: str = Field(default="5W40")
@@ -414,8 +417,16 @@ def get_save_car_data_url() -> str:
 
 
 def save_car_data(data: StickerData, iso_date_heure: str) -> str:
+    car_type = data.type.strip().upper()
+    if car_type not in CAR_TYPE_OPTIONS:
+        raise PersistenceError(
+            "Failed to save car data before printing",
+            details={"field": "type", "reason": f"expected one of {', '.join(CAR_TYPE_OPTIONS)}"},
+        )
+
     save_url = get_save_car_data_url()
     payload = {
+        "type": car_type,
         "matricule": data.matricule,
         "vehicule_marque": data.vehicule_marque,
         "vehicule_modele": data.vehicule_modele,
@@ -713,6 +724,7 @@ POS_DEMO_DATA = {
     "vehicule_marque": "Peugeot",
     "vehicule_modele": "208 Allure",
     "vehicule_annee": "2021",
+    "type": "TUN",
     "matricule": "231TU1984",
     "huile_moteur": "Total Quartz 9000",
     "viscosite": "5W40",
@@ -1072,6 +1084,19 @@ def build_pos_html() -> str:
           </div>
 
           <div class="field">
+            <label for="type">Plate type</label>
+            <select id="type" name="type">
+              <option value="TUN">TUN</option>
+              <option value="RS">RS</option>
+              <option value="REM">REM</option>
+              <option value="AA">AA</option>
+              <option value="MOTO">MOTO</option>
+              <option value="ES">ES</option>
+              <option value="TRAC">TRAC</option>
+            </select>
+          </div>
+
+          <div class="field">
             <label for="matricule">Plate</label>
             <input id="matricule" name="matricule" />
           </div>
@@ -1173,6 +1198,7 @@ def build_pos_html() -> str:
       "vehicule_marque",
       "vehicule_modele",
       "vehicule_annee",
+      "type",
       "matricule",
       "huile_moteur",
       "viscosite",
@@ -1206,6 +1232,7 @@ def build_pos_html() -> str:
 
     function resetFormFields() {{
       writeValues({{}});
+      form.elements.namedItem("type").value = "TUN";
       form.elements.namedItem("printer_name").value = defaultPrinterName;
       form.elements.namedItem("top_border_margin").value = defaultMargin;
     }}
@@ -1232,6 +1259,11 @@ def build_pos_html() -> str:
         if (!payload.data[field] || Number.isNaN(Number.parseInt(payload.data[field], 10))) {{
           throw new Error(`Field "${{field}}" must be filled with a number before printing.`);
         }}
+      }}
+
+      const validTypes = ["TUN", "RS", "REM", "AA", "MOTO", "ES", "TRAC"];
+      if (!validTypes.includes(payload.data.type)) {{
+        throw new Error('Field "type" must be one of TUN, RS, REM, AA, MOTO, ES, or TRAC.');
       }}
 
       if (Number.isNaN(payload.top_border_margin)) {{
