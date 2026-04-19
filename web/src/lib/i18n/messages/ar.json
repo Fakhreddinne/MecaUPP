@@ -82,6 +82,7 @@
       "vehicleSection": "الكرهبة",
       "description": "تاريخ الصيانة الكل في بلاصة وحدة، والصيانة الجاية باينة من اول نظرة، والكارنيه متاح بالـ QR code متاع الورشة.",
       "registration": "المنجم",
+      "type": "النوع",
       "year": "الموديل",
       "nextService": "الصيانة الجاية",
       "notDefined": "موش محدد",
@@ -127,6 +128,15 @@
       "huile_boite": "زيت بواطة",
       "autre": "اخر",
       "prochain_km": "الصيانة الجاية"
+    },
+    "plateTypes": {
+      "TUN": { "fr": "TUN", "ar": "تونس" },
+      "RS": { "fr": "RS", "ar": "ن ت" },
+      "REM": { "fr": "REM", "ar": "ع م" },
+      "AA": { "fr": "AA", "ar": "أ ف" },
+      "MOTO": { "fr": "MOTO", "ar": "د ن" },
+      "ES": { "fr": "ES", "ar": "م خ" },
+      "TRAC": { "fr": "TRAC", "ar": "ج ف" }
     }
   }
 }

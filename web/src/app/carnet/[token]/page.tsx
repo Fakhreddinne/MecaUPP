@@ -9,6 +9,7 @@ import {
   formatKilometers,
   sortMaintenanceEvents,
   type Car,
+  type CarType,
 } from "@/lib/carnet";
 import { getI18n } from "@/lib/i18n/server";
 import { formatMessage } from "@/lib/i18n/utils";
@@ -64,10 +65,16 @@ async function getCar(id: string, apiBase: string, errorMessages: {
   }
 }
 
-function TunisianPlate({ immat }: { immat: string }) {
-  const numbers = immat.match(/\d+/g) || [];
-  const left = (numbers[0] || "000").slice(0, 3).padStart(3, "0");
-  const right = (numbers[1] || "0000").slice(0, 4).padStart(4, "0");
+function TunisianPlate({
+  plateLeft,
+  plateRight,
+  typeLabels,
+}: {
+  plateLeft: string;
+  plateRight: string;
+  typeLabels: Record<CarType, { fr: string; ar: string }>;
+}) {
+  const labels = typeLabels.TUN;
 
   return (
     <div
@@ -75,12 +82,44 @@ function TunisianPlate({ immat }: { immat: string }) {
       className="w-full max-w-[420px] rounded-[24px] border-[6px] border-neutral-950 bg-white p-3 text-neutral-950 shadow-[0_18px_50px_rgba(0,0,0,0.28)]"
     >
       <div className="grid grid-cols-[1fr_auto_1fr] items-center rounded-[18px] border border-black/10 px-5 py-4">
-        <div className="text-center text-[2rem] font-black tracking-[0.16em] md:text-[2.6rem]">{left}</div>
+        <div className="text-center text-[2rem] font-black tracking-[0.16em] md:text-[2.6rem]">{plateLeft}</div>
         <div className="px-3 text-center">
-          <div className="text-sm font-black">TN</div>
-          <div className="text-[1.6rem] font-black leading-none md:text-[1.9rem]">تونس</div>
+          <div className="text-sm font-black">{labels.fr}</div>
+          <div className="text-[1.6rem] font-black leading-none md:text-[1.9rem]">{labels.ar}</div>
         </div>
-        <div className="text-center text-[2rem] font-black tracking-[0.18em] md:text-[2.6rem]">{right}</div>
+        <div className="text-center text-[2rem] font-black tracking-[0.18em] md:text-[2.6rem]">{plateRight}</div>
+      </div>
+    </div>
+  );
+}
+
+function extractPlateDigits(value: string): string {
+  const digits = value.match(/\d+/g) || [];
+  return digits.join("");
+}
+
+function TypedPlate({
+  immat,
+  carType,
+  typeLabels,
+}: {
+  immat: string;
+  carType: CarType;
+  typeLabels: Record<CarType, { fr: string; ar: string }>;
+}) {
+  const labels = typeLabels[carType];
+  const number = extractPlateDigits(immat) || "0000";
+
+  return (
+    <div
+      dir="ltr"
+      className="w-full max-w-[420px] rounded-[24px] border-[6px] border-neutral-950 bg-white p-3 text-neutral-950 shadow-[0_18px_50px_rgba(0,0,0,0.28)]"
+    >
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-[18px] border border-black/10 px-5 py-4">
+        <div className="pr-4 text-center text-[2rem] font-black tracking-[0.12em] md:text-[2.6rem]">{number}</div>
+        <div className="border-l border-black/15 pl-4 text-center">
+          <div className="text-[1.6rem] font-black leading-none md:text-[1.9rem]">{labels.ar}</div>
+        </div>
       </div>
     </div>
   );
@@ -175,6 +214,17 @@ export default async function CarnetPage({
   const vehicleLabel =
     [vehicleMake, vehicleModel].filter(Boolean).join(" ") || dictionary.carnet.hero.vehicleLabel;
   const nextService = computeNextService(latestEvent);
+  const plateTypeLabels = dictionary.carnet.plateTypes as Record<CarType, { fr: string; ar: string }>;
+  const plateComponent =
+    data.type === "TUN" ? (
+      <TunisianPlate
+        plateLeft={data.plate_left || ""}
+        plateRight={data.plate_right || ""}
+        typeLabels={plateTypeLabels}
+      />
+    ) : (
+      <TypedPlate immat={data.matricule || ""} carType={data.type} typeLabels={plateTypeLabels} />
+    );
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(124,246,197,0.18),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(102,163,255,0.22),_transparent_30%),linear-gradient(180deg,#0b0f14,#0e1622)] px-4 py-6 text-white md:px-6 md:py-10">
@@ -211,7 +261,7 @@ export default async function CarnetPage({
                   {dictionary.carnet.hero.description}
                 </p>
               </div>
-              <TunisianPlate immat={data.matricule || "000 TU 0000"} />
+              {plateComponent}
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -220,6 +270,9 @@ export default async function CarnetPage({
                 className="rounded-full border border-white/10 bg-black/18 px-4 py-2 text-sm font-semibold text-white/82"
               >
                 {dictionary.carnet.hero.registration}: {data.matricule || "-"}
+              </div>
+              <div className="rounded-full border border-white/10 bg-black/18 px-4 py-2 text-sm font-semibold text-white/82">
+                {dictionary.carnet.hero.type}: {plateTypeLabels[data.type]?.fr || data.type}
               </div>
               {data.vehicule_annee ? (
                 <div

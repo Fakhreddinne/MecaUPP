@@ -15,9 +15,14 @@ export type MaintenanceEvent = {
   prochain_km: number;
 };
 
+export type CarType = "TUN" | "RS" | "REM" | "AA" | "MOTO" | "ES" | "TRAC";
+
 export type Car = {
   _id: string;
+  type: CarType;
   matricule: string;
+  plate_left?: string | null;
+  plate_right?: string | null;
   image_path?: string | null;
   vehicule_marque?: string | null;
   vehicule_modele?: string | null;

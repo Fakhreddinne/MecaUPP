@@ -82,6 +82,7 @@
       "vehicleSection": "Vehicule",
       "description": "Historique centralise, prochaine revision visible en un coup d'oeil et carnet accessible depuis le QR code de l'atelier.",
       "registration": "Immatriculation",
+      "type": "Type",
       "year": "Annee",
       "nextService": "Prochain entretien",
       "notDefined": "Non defini",
@@ -127,6 +128,15 @@
       "huile_boite": "Huile boite",
       "autre": "Autre",
       "prochain_km": "Prochain entretien"
+    },
+    "plateTypes": {
+      "TUN": { "fr": "TUN", "ar": "تونس" },
+      "RS": { "fr": "RS", "ar": "ن ت" },
+      "REM": { "fr": "REM", "ar": "ع م" },
+      "AA": { "fr": "AA", "ar": "أ ف" },
+      "MOTO": { "fr": "MOTO", "ar": "د ن" },
+      "ES": { "fr": "ES", "ar": "م خ" },
+      "TRAC": { "fr": "TRAC", "ar": "ج ف" }
     }
   }
 }

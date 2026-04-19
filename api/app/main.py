@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 from config import settings
 from db import close_client, get_database, ping_mongodb
-from schemas import CarOut, MaintenanceEventCreate
+from schemas import CarOut, CarType, MaintenanceEventCreate
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,10 @@ def serialize_car_document(document: Dict[str, Any]) -> Dict[str, Any]:
     serialized["_id"] = str(serialized["_id"])
     serialized["image_path"] = normalize_image_path(serialized.get("image_path"))
     return serialized
+
+
+def build_tun_matricule(plate_left: str, plate_right: str) -> str:
+    return f"{plate_left} TUN {plate_right}"
 
 
 def normalize_image_path(path: str | None) -> str | None:
@@ -222,14 +226,43 @@ def save_car_data(payload: MaintenanceEventCreate) -> Dict[str, Any]:
         "vehicule_modele": payload.vehicule_modele,
         "vehicule_annee": payload.vehicule_annee,
     }
-    matricule = payload.matricule
+    car_type = payload.type
 
-    existing_car = cars_collection.find_one({"matricule": matricule})
+    if car_type == CarType.TUN:
+        assert payload.plate_left is not None
+        assert payload.plate_right is not None
+        plate_fields = {
+            "plate_left": payload.plate_left,
+            "plate_right": payload.plate_right,
+        }
+        plate_document = {
+            "matricule": build_tun_matricule(payload.plate_left, payload.plate_right),
+            **plate_fields,
+        }
+        existing_car = cars_collection.find_one(
+            {
+                "type": car_type.value,
+                "plate_left": payload.plate_left,
+                "plate_right": payload.plate_right,
+            }
+        )
+    else:
+        assert payload.matricule is not None
+        plate_document = {
+            "matricule": payload.matricule,
+        }
+        existing_car = cars_collection.find_one(
+            {
+                "type": car_type.value,
+                "matricule": payload.matricule,
+            }
+        )
 
     if existing_car is None:
         insert_result = cars_collection.insert_one(
             {
-                "matricule": matricule,
+                "type": car_type.value,
+                **plate_document,
                 "image_path": None,
                 **vehicle_details,
                 "maintenance": [maintenance_event],
@@ -239,16 +272,18 @@ def save_car_data(payload: MaintenanceEventCreate) -> Dict[str, Any]:
         )
         saved_car = cars_collection.find_one({"_id": insert_result.inserted_id})
     else:
-        cars_collection.update_one(
-            {"_id": existing_car["_id"]},
-            {
-                "$push": {"maintenance": maintenance_event},
-                "$set": {
-                    **vehicle_details,
-                    "updated_at": now,
-                },
+        update_document: Dict[str, Any] = {
+            "$push": {"maintenance": maintenance_event},
+            "$set": {
+                "type": car_type.value,
+                **plate_document,
+                **vehicle_details,
+                "updated_at": now,
             },
-        )
+        }
+        if car_type != CarType.TUN:
+            update_document["$unset"] = {"plate_left": "", "plate_right": ""}
+        cars_collection.update_one({"_id": existing_car["_id"]}, update_document)
         saved_car = cars_collection.find_one({"_id": existing_car["_id"]})
 
     if saved_car is None:
