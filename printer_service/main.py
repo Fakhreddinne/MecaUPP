@@ -93,7 +93,7 @@ FIELD_CONSTRAINTS = {
     "date_heure": {"max_len": 20, "suffix": ""},
     "kilometrage": {"max_len": 8, "suffix": ""},
     "vehicule_modele": {"max_len": 30, "suffix": ".."},
-    "matricule": {"max_len": 10, "suffix": ""},
+    "matricule": {"max_len": 16, "suffix": ""},
     "huile_moteur": {"max_len": 30, "suffix": ".."},
     "viscosite": {"max_len": 6, "suffix": ""},
     "filtre_huile": {"max_len": 4, "suffix": ""},
@@ -190,7 +190,9 @@ class StickerData(BaseModel):
     vehicule_modele: str = Field(default="Tenere 700")
     vehicule_annee: str = Field(default="")
     type: str = Field(default="TUN")
-    matricule: str = Field(default="123TU4565")
+    plate_left: str = Field(default="123")
+    plate_right: str = Field(default="4565")
+    matricule: str = Field(default="")
     huile_moteur: str = Field(default="Total Quartz 9000")
     viscosite: str = Field(default="5W40")
     filtre_huile: str = Field(default="Oui")
@@ -347,6 +349,7 @@ def resolve_sticker_data(data: StickerData, *, qr_text: str, date_heure: str) ->
     resolved_payload = {
         **STATIC_STICKER_DEFAULTS,
         **data.model_dump(),
+        "matricule": build_plate_display(data),
         "vehicule_modele": vehicle_display,
         "qr_text": qr_text,
         "date_heure": date_heure,
@@ -416,6 +419,16 @@ def get_save_car_data_url() -> str:
     return urlparse.urljoin(base_url.rstrip("/") + "/", SAVE_CAR_DATA_PATH.lstrip("/"))
 
 
+def build_tun_plate_display(plate_left: str, plate_right: str) -> str:
+    return f"{plate_left} TUN {plate_right}"
+
+
+def build_plate_display(data: StickerData) -> str:
+    if data.type.strip().upper() == "TUN":
+        return build_tun_plate_display(data.plate_left, data.plate_right)
+    return data.matricule
+
+
 def save_car_data(data: StickerData, iso_date_heure: str) -> str:
     car_type = data.type.strip().upper()
     if car_type not in CAR_TYPE_OPTIONS:
@@ -424,10 +437,26 @@ def save_car_data(data: StickerData, iso_date_heure: str) -> str:
             details={"field": "type", "reason": f"expected one of {', '.join(CAR_TYPE_OPTIONS)}"},
         )
 
+    if car_type == "TUN":
+        if not data.plate_left or not data.plate_right:
+            raise PersistenceError(
+                "Failed to save car data before printing",
+                details={"field": "plate", "reason": "TUN plates require plate_left and plate_right"},
+            )
+        if not data.plate_left.isdigit() or not data.plate_right.isdigit():
+            raise PersistenceError(
+                "Failed to save car data before printing",
+                details={"field": "plate", "reason": "TUN plate_left and plate_right must contain only digits"},
+            )
+    elif not data.matricule:
+        raise PersistenceError(
+            "Failed to save car data before printing",
+            details={"field": "matricule", "reason": "non-TUN plates require matricule"},
+        )
+
     save_url = get_save_car_data_url()
-    payload = {
+    payload: dict[str, Any] = {
         "type": car_type,
-        "matricule": data.matricule,
         "vehicule_marque": data.vehicule_marque,
         "vehicule_modele": data.vehicule_modele,
         "vehicule_annee": parse_int_field(data.vehicule_annee, "vehicule_annee"),
@@ -445,6 +474,11 @@ def save_car_data(data: StickerData, iso_date_heure: str) -> str:
             "prochain_km": parse_int_field(data.prochain_km, "prochain_km"),
         },
     }
+    if car_type == "TUN":
+        payload["plate_left"] = data.plate_left
+        payload["plate_right"] = data.plate_right
+    else:
+        payload["matricule"] = data.matricule
 
     body = json.dumps(payload).encode("utf-8")
     request = urlrequest.Request(
@@ -725,7 +759,9 @@ POS_DEMO_DATA = {
     "vehicule_modele": "208 Allure",
     "vehicule_annee": "2021",
     "type": "TUN",
-    "matricule": "231TU1984",
+    "plate_left": "231",
+    "plate_right": "1984",
+    "matricule": "",
     "huile_moteur": "Total Quartz 9000",
     "viscosite": "5W40",
     "filtre_huile": "Oui",
@@ -912,6 +948,132 @@ def build_pos_html() -> str:
       border-color: var(--accent);
     }}
 
+    select {{
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font: inherit;
+    }}
+
+    select:focus {{
+      outline: 2px solid rgba(201, 107, 44, 0.18);
+      border-color: var(--accent);
+    }}
+
+    .plate-entry {{
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 2px;
+    }}
+
+    .plate-entry-copy {{
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }}
+
+    .plate-widget {{
+      width: min(100%, 460px);
+      border-radius: 24px;
+      border: 6px solid #20242a;
+      background: linear-gradient(180deg, #ffffff, #f8f5ef);
+      padding: 10px;
+      box-shadow: 0 20px 44px rgba(32, 26, 20, 0.16);
+    }}
+
+    .plate-widget-frame {{
+      min-height: 96px;
+      border-radius: 18px;
+      border: 1px solid rgba(32, 36, 42, 0.16);
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244, 239, 231, 0.92));
+      display: grid;
+      align-items: center;
+      overflow: hidden;
+    }}
+
+    .plate-widget-frame.tun {{
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }}
+
+    .plate-widget-frame.generic {{
+      grid-template-columns: minmax(0, 1fr) auto;
+    }}
+
+    .plate-input {{
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      border-radius: 0;
+      text-align: center;
+      padding: 18px 16px;
+      font-size: clamp(1.9rem, 3.2vw, 2.7rem);
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      color: #15181d;
+      box-shadow: none;
+    }}
+
+    .plate-input:focus {{
+      outline: none;
+      border-color: transparent;
+      box-shadow: inset 0 0 0 3px rgba(201, 107, 44, 0.18);
+      background: rgba(201, 107, 44, 0.05);
+    }}
+
+    .plate-input::placeholder {{
+      color: rgba(32, 26, 20, 0.3);
+      letter-spacing: 0.08em;
+    }}
+
+    .plate-input.generic {{
+      text-align: left;
+      padding-left: 24px;
+      letter-spacing: 0.12em;
+    }}
+
+    .plate-badge {{
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding: 12px 18px;
+      border-left: 1px solid rgba(32, 36, 42, 0.14);
+      background: linear-gradient(180deg, rgba(31, 36, 43, 0.04), rgba(31, 36, 43, 0.08));
+    }}
+
+    .plate-badge.tun {{
+      border-left: 1px solid rgba(32, 36, 42, 0.14);
+      border-right: 1px solid rgba(32, 36, 42, 0.14);
+      min-width: 96px;
+    }}
+
+    .plate-badge-fr {{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      color: #171a1f;
+      text-transform: uppercase;
+    }}
+
+    .plate-badge-ar {{
+      font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+      font-weight: 900;
+      color: #171a1f;
+      line-height: 1.1;
+    }}
+
+    .plate-badge.generic-only {{
+      min-width: 96px;
+      padding-inline: 22px;
+    }}
+
     .toolbar {{
       display: flex;
       flex-wrap: wrap;
@@ -1031,6 +1193,23 @@ def build_pos_html() -> str:
         min-height: 320px;
         padding: 12px;
       }}
+
+      .plate-widget {{
+        width: 100%;
+      }}
+
+      .plate-widget-frame.tun {{
+        grid-template-columns: minmax(0, 1fr) 92px minmax(0, 1fr);
+      }}
+
+      .plate-input {{
+        font-size: 1.7rem;
+        padding: 16px 12px;
+      }}
+
+      .plate-input.generic {{
+        padding-left: 16px;
+      }}
     }}
   </style>
 </head>
@@ -1096,9 +1275,45 @@ def build_pos_html() -> str:
             </select>
           </div>
 
-          <div class="field">
-            <label for="matricule">Plate</label>
-            <input id="matricule" name="matricule" />
+          <div class="plate-entry">
+            <label>Plate</label>
+            <div class="plate-entry-copy">Type directly into the plate. The layout updates automatically based on the selected plate type.</div>
+            <div class="plate-widget">
+              <div class="plate-widget-frame tun" id="tunPlateWidget">
+                <input
+                  class="plate-input"
+                  id="plate_left"
+                  name="plate_left"
+                  inputmode="numeric"
+                  placeholder="000"
+                  aria-label="Plate left serial"
+                />
+                <div class="plate-badge tun">
+                  <div class="plate-badge-fr">TUN</div>
+                  <div class="plate-badge-ar">تونس</div>
+                </div>
+                <input
+                  class="plate-input"
+                  id="plate_right"
+                  name="plate_right"
+                  inputmode="numeric"
+                  placeholder="0000"
+                  aria-label="Plate right registration"
+                />
+              </div>
+              <div class="plate-widget-frame generic" id="genericPlateWidget" style="display:none;">
+                <input
+                  class="plate-input generic"
+                  id="matricule"
+                  name="matricule"
+                  placeholder="000000"
+                  aria-label="Plate"
+                />
+                <div class="plate-badge generic-only">
+                  <div class="plate-badge-ar" id="genericPlateArabic">ن ت</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="field">
@@ -1190,6 +1405,18 @@ def build_pos_html() -> str:
     const printButton = document.getElementById("printButton");
     const demoButton = document.getElementById("demoButton");
     const clearButton = document.getElementById("clearButton");
+    const tunPlateWidget = document.getElementById("tunPlateWidget");
+    const genericPlateWidget = document.getElementById("genericPlateWidget");
+    const genericPlateArabic = document.getElementById("genericPlateArabic");
+    const plateLabels = {{
+      TUN: {{ ar: "تونس" }},
+      RS: {{ ar: "ن ت" }},
+      REM: {{ ar: "ع م" }},
+      AA: {{ ar: "أ ف" }},
+      MOTO: {{ ar: "د ن" }},
+      ES: {{ ar: "م خ" }},
+      TRAC: {{ ar: "ج ف" }},
+    }};
 
     const fieldNames = [
       "contact_line",
@@ -1199,6 +1426,8 @@ def build_pos_html() -> str:
       "vehicule_modele",
       "vehicule_annee",
       "type",
+      "plate_left",
+      "plate_right",
       "matricule",
       "huile_moteur",
       "viscosite",
@@ -1235,6 +1464,18 @@ def build_pos_html() -> str:
       form.elements.namedItem("type").value = "TUN";
       form.elements.namedItem("printer_name").value = defaultPrinterName;
       form.elements.namedItem("top_border_margin").value = defaultMargin;
+      syncPlateFields();
+    }}
+
+    function syncPlateFields() {{
+      const isTun = form.elements.namedItem("type").value === "TUN";
+      const type = form.elements.namedItem("type").value;
+      tunPlateWidget.style.display = isTun ? "" : "none";
+      genericPlateWidget.style.display = isTun ? "none" : "";
+      genericPlateArabic.textContent = plateLabels[type]?.ar || "";
+      form.elements.namedItem("plate_left").disabled = !isTun;
+      form.elements.namedItem("plate_right").disabled = !isTun;
+      form.elements.namedItem("matricule").disabled = isTun;
     }}
 
     function getStickerData() {{
@@ -1264,6 +1505,17 @@ def build_pos_html() -> str:
       const validTypes = ["TUN", "RS", "REM", "AA", "MOTO", "ES", "TRAC"];
       if (!validTypes.includes(payload.data.type)) {{
         throw new Error('Field "type" must be one of TUN, RS, REM, AA, MOTO, ES, or TRAC.');
+      }}
+
+      if (payload.data.type === "TUN") {{
+        if (!payload.data.plate_left || !payload.data.plate_right) {{
+          throw new Error('TUN plates require both "plate_left" and "plate_right".');
+        }}
+        if (Number.isNaN(Number.parseInt(payload.data.plate_left, 10)) || Number.isNaN(Number.parseInt(payload.data.plate_right, 10))) {{
+          throw new Error('TUN "plate_left" and "plate_right" must be numeric.');
+        }}
+      }} else if (!payload.data.matricule) {{
+        throw new Error('Non-TUN plates require the "matricule" field.');
       }}
 
       if (Number.isNaN(payload.top_border_margin)) {{
@@ -1340,6 +1592,7 @@ def build_pos_html() -> str:
 
     demoButton.addEventListener("click", () => {{
       writeValues(demoData);
+      syncPlateFields();
       setStatus("Demo data loaded. You can edit or clear it whenever you want.");
     }});
 
@@ -1351,6 +1604,10 @@ def build_pos_html() -> str:
         </div>
       `;
       setStatus("Form cleared.");
+    }});
+
+    form.elements.namedItem("type").addEventListener("change", () => {{
+      syncPlateFields();
     }});
 
     previewButton.addEventListener("click", updatePreview);
