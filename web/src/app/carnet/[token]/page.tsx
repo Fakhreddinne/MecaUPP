@@ -11,6 +11,7 @@ import {
   type Car,
   type CarType,
 } from "@/lib/carnet";
+import { type Locale } from "@/lib/i18n/config";
 import { getI18n } from "@/lib/i18n/server";
 import { formatMessage } from "@/lib/i18n/utils";
 
@@ -19,6 +20,8 @@ type CarResult =
   | { kind: "not_found"; apiBase: string }
   | { kind: "invalid_id"; apiBase: string }
   | { kind: "error"; apiBase: string; message: string };
+
+type PlateTypeLabels = Record<CarType, { fr: string; ar: string }>;
 
 function inferApiBase(host: string | null, protocol: string | null): string {
   if (!host) {
@@ -69,12 +72,15 @@ function TunisianPlate({
   plateLeft,
   plateRight,
   typeLabels,
+  locale,
 }: {
   plateLeft: string;
   plateRight: string;
-  typeLabels: Record<CarType, { fr: string; ar: string }>;
+  typeLabels: PlateTypeLabels;
+  locale: Locale;
 }) {
-  const labels = typeLabels.TUN;
+  const label = getLocalizedPlateTypeLabel(typeLabels.TUN, locale);
+  const isArabic = locale === "darija";
 
   return (
     <div
@@ -83,9 +89,8 @@ function TunisianPlate({
     >
       <div className="grid grid-cols-[1fr_auto_1fr] items-center rounded-[18px] border border-black/10 px-5 py-4">
         <div className="text-center text-[2rem] font-black tracking-[0.16em] md:text-[2.6rem]">{plateLeft}</div>
-        <div className="px-3 text-center">
-          <div className="text-sm font-black">{labels.fr}</div>
-          <div className="text-[1.6rem] font-black leading-none md:text-[1.9rem]">{labels.ar}</div>
+        <div className={`px-3 text-center ${isArabic ? "text-[1.6rem] md:text-[1.9rem]" : "text-sm tracking-[0.16em]"}`}>
+          <div className="font-black leading-none">{label}</div>
         </div>
         <div className="text-center text-[2rem] font-black tracking-[0.18em] md:text-[2.6rem]">{plateRight}</div>
       </div>
@@ -102,12 +107,14 @@ function TypedPlate({
   immat,
   carType,
   typeLabels,
+  locale,
 }: {
   immat: string;
   carType: CarType;
-  typeLabels: Record<CarType, { fr: string; ar: string }>;
+  typeLabels: PlateTypeLabels;
+  locale: Locale;
 }) {
-  const labels = typeLabels[carType];
+  const label = getLocalizedPlateTypeLabel(typeLabels[carType], locale);
   const number = extractPlateDigits(immat) || "0000";
 
   return (
@@ -118,11 +125,20 @@ function TypedPlate({
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-[18px] border border-black/10 px-5 py-4">
         <div className="pr-4 text-center text-[2rem] font-black tracking-[0.12em] md:text-[2.6rem]">{number}</div>
         <div className="border-l border-black/15 pl-4 text-center">
-          <div className="text-[1.6rem] font-black leading-none md:text-[1.9rem]">{labels.ar}</div>
+          <div className={`${locale === "darija" ? "text-[1.6rem] md:text-[1.9rem]" : "text-sm tracking-[0.16em]"} font-black leading-none`}>
+            {label}
+          </div>
         </div>
       </div>
     </div>
   );
+}
+
+function getLocalizedPlateTypeLabel(
+  labels: { fr: string; ar: string },
+  locale: Locale
+): string {
+  return locale === "darija" ? labels.ar : labels.fr;
 }
 
 function ErrorState({
@@ -214,16 +230,17 @@ export default async function CarnetPage({
   const vehicleLabel =
     [vehicleMake, vehicleModel].filter(Boolean).join(" ") || dictionary.carnet.hero.vehicleLabel;
   const nextService = computeNextService(latestEvent);
-  const plateTypeLabels = dictionary.carnet.plateTypes as Record<CarType, { fr: string; ar: string }>;
+  const plateTypeLabels = dictionary.carnet.plateTypes as PlateTypeLabels;
   const plateComponent =
     data.type === "TUN" ? (
       <TunisianPlate
         plateLeft={data.plate_left || ""}
         plateRight={data.plate_right || ""}
         typeLabels={plateTypeLabels}
+        locale={locale}
       />
     ) : (
-      <TypedPlate immat={data.matricule || ""} carType={data.type} typeLabels={plateTypeLabels} />
+      <TypedPlate immat={data.matricule || ""} carType={data.type} typeLabels={plateTypeLabels} locale={locale} />
     );
 
   return (
@@ -272,7 +289,7 @@ export default async function CarnetPage({
                 {dictionary.carnet.hero.registration}: {data.matricule || "-"}
               </div>
               <div className="rounded-full border border-white/10 bg-black/18 px-4 py-2 text-sm font-semibold text-white/82">
-                {dictionary.carnet.hero.type}: {plateTypeLabels[data.type]?.fr || data.type}
+                {dictionary.carnet.hero.type}: {getLocalizedPlateTypeLabel(plateTypeLabels[data.type], locale)}
               </div>
               {data.vehicule_annee ? (
                 <div
