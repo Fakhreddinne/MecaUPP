@@ -1,8 +1,11 @@
 import Image from "next/image";
 import { headers } from "next/headers";
+import type { ReactNode } from "react";
 import { MaintenanceCarousel } from "./maintenance-carousel";
-import { business } from "@/lib/business";
+import { DashboardCard, StatPill, StatusBadge, Timeline } from "@/components/carnet-ui";
 import { LanguageSelector } from "@/components/language-selector";
+import { CalendarIcon, CarIcon, GaugeIcon, QrIcon } from "@/components/site-icons";
+import { business } from "@/lib/business";
 import {
   computeNextService,
   formatDate,
@@ -32,10 +35,14 @@ function inferApiBase(host: string | null, protocol: string | null): string {
   return `${protocol || "http"}://${hostname}:8001`;
 }
 
-async function getCar(id: string, apiBase: string, errorMessages: {
-  serviceUnavailableMessage: string;
-  apiUnavailableMessage: string;
-}): Promise<CarResult> {
+async function getCar(
+  id: string,
+  apiBase: string,
+  errorMessages: {
+    serviceUnavailableMessage: string;
+    apiUnavailableMessage: string;
+  }
+): Promise<CarResult> {
   try {
     const response = await fetch(`${apiBase}/api/cars/${encodeURIComponent(id)}`, {
       cache: "no-store",
@@ -85,9 +92,9 @@ function TunisianPlate({
   return (
     <div
       dir="ltr"
-      className="w-full max-w-[420px] rounded-[24px] border-[6px] border-neutral-950 bg-white p-3 text-neutral-950 shadow-[0_18px_50px_rgba(0,0,0,0.28)]"
+      className="w-full max-w-[420px] rounded-[26px] border-[6px] border-neutral-950 bg-white p-3 text-neutral-950 shadow-[0_24px_55px_rgba(0,0,0,0.28)]"
     >
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center rounded-[18px] border border-black/10 px-5 py-4">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center rounded-[20px] border border-black/10 px-5 py-4">
         <div className="text-center text-[2rem] font-black tracking-[0.16em] md:text-[2.6rem]">{plateLeft}</div>
         <div className={`px-3 text-center ${isArabic ? "text-[1.6rem] md:text-[1.9rem]" : "text-sm tracking-[0.16em]"}`}>
           <div className="font-black leading-none">{label}</div>
@@ -120,9 +127,9 @@ function TypedPlate({
   return (
     <div
       dir="ltr"
-      className="w-full max-w-[420px] rounded-[24px] border-[6px] border-neutral-950 bg-white p-3 text-neutral-950 shadow-[0_18px_50px_rgba(0,0,0,0.28)]"
+      className="w-full max-w-[420px] rounded-[26px] border-[6px] border-neutral-950 bg-white p-3 text-neutral-950 shadow-[0_24px_55px_rgba(0,0,0,0.28)]"
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-[18px] border border-black/10 px-5 py-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-[20px] border border-black/10 px-5 py-4">
         <div className="pr-4 text-center text-[2rem] font-black tracking-[0.12em] md:text-[2.6rem]">{number}</div>
         <div className="border-l border-black/15 pl-4 text-center">
           <div className={`${locale === "darija" ? "text-[1.6rem] md:text-[1.9rem]" : "text-sm tracking-[0.16em]"} font-black leading-none`}>
@@ -134,10 +141,7 @@ function TypedPlate({
   );
 }
 
-function getLocalizedPlateTypeLabel(
-  labels: { fr: string; ar: string },
-  locale: Locale
-): string {
+function getLocalizedPlateTypeLabel(labels: { fr: string; ar: string }, locale: Locale): string {
   return locale === "darija" ? labels.ar : labels.fr;
 }
 
@@ -153,12 +157,14 @@ function ErrorState({
   requestIdLabel: string;
 }) {
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(124,246,197,0.18),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(102,163,255,0.22),_transparent_28%),linear-gradient(180deg,#0b0f14,#0e1622)] px-4 py-10 text-white">
-      <div className="mx-auto max-w-3xl rounded-[28px] border border-white/10 bg-white/6 p-8 shadow-2xl backdrop-blur">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/55">{requestIdLabel}</p>
-        <h1 className="mt-4 text-3xl font-black">{title}</h1>
-        <p className="mt-3 text-base text-white/72">{message}</p>
-        <div className="mt-6 rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm text-white/70">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.18),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(34,197,94,0.12),_transparent_24%),linear-gradient(180deg,#050a12,#0a1320)] px-4 py-10 text-white">
+      <div className="mx-auto max-w-3xl rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,36,0.92),rgba(8,14,24,0.94))] p-8 shadow-[0_30px_80px_rgba(0,0,0,0.34)] backdrop-blur">
+        <div className="inline-flex rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-white/55">
+          {requestIdLabel}
+        </div>
+        <h1 className="mt-5 text-3xl font-semibold tracking-tight">{title}</h1>
+        <p className="mt-3 max-w-xl text-base text-white/72">{message}</p>
+        <div className="mt-6 rounded-2xl border border-white/10 bg-black/18 px-4 py-3 text-sm text-white/70">
           {requestIdLabel}: <span className="font-semibold text-white">{carId}</span>
         </div>
       </div>
@@ -166,11 +172,24 @@ function ErrorState({
   );
 }
 
-function getInterventionCountLabel(
-  count: number,
-  messages: { countSingle: string; countPlural: string }
-) {
+function getInterventionCountLabel(count: number, messages: { countSingle: string; countPlural: string }) {
   return formatMessage(count === 1 ? messages.countSingle : messages.countPlural, { count });
+}
+
+function getMaintenanceStatus(deltaKm: number | null, copy: Record<string, string>) {
+  if (deltaKm === null) {
+    return { tone: "slate" as const, label: copy.unknown };
+  }
+
+  if (deltaKm <= 0) {
+    return { tone: "orange" as const, label: copy.overdue };
+  }
+
+  if (deltaKm <= 12000) {
+    return { tone: "orange" as const, label: copy.soon };
+  }
+
+  return { tone: "green" as const, label: copy.safe };
 }
 
 export default async function CarnetPage({
@@ -242,11 +261,53 @@ export default async function CarnetPage({
     ) : (
       <TypedPlate immat={data.matricule || ""} carType={data.type} typeLabels={plateTypeLabels} locale={locale} />
     );
+  const remainingKm =
+    latestEvent && typeof nextService.km === "number" ? nextService.km - latestEvent.kilometrage : null;
+  const maintenanceStatus = getMaintenanceStatus(remainingKm, dictionary.carnet.nextMaintenance);
+  const timelineItems: Array<{
+    title: string;
+    hint: string;
+    value: ReactNode;
+    tone?: "blue" | "green" | "slate";
+  }> = [
+    {
+      title: dictionary.carnet.timeline.created,
+      hint: dictionary.carnet.timeline.createdHint,
+      value: <span dir="ltr">{formatDate(data.created_at, locale)}</span>,
+      tone: "blue" as const,
+    },
+    {
+      title: dictionary.carnet.timeline.lastService,
+      hint: dictionary.carnet.timeline.lastServiceHint,
+      value: (
+        <span dir="ltr">
+          {latestEvent?.date_heure ? formatDate(latestEvent.date_heure, locale) : dictionary.carnet.summary.none}
+        </span>
+      ),
+      tone: "slate" as const,
+    },
+    {
+      title: dictionary.carnet.timeline.today,
+      hint: dictionary.carnet.timeline.todayHint,
+      value: <span dir="ltr">{formatDate(new Date().toISOString(), locale)}</span>,
+      tone: "blue" as const,
+    },
+    {
+      title: dictionary.carnet.timeline.nextService,
+      hint: dictionary.carnet.timeline.nextServiceHint,
+      value: (
+        <span dir="ltr">
+          {nextService.km !== null ? formatKilometers(nextService.km, locale) : dictionary.carnet.hero.notDefined}
+        </span>
+      ),
+      tone: maintenanceStatus.tone === "green" ? "green" : "slate",
+    },
+  ];
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(124,246,197,0.18),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(102,163,255,0.22),_transparent_30%),linear-gradient(180deg,#0b0f14,#0e1622)] px-4 py-6 text-white md:px-6 md:py-10">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.18),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(34,197,94,0.12),_transparent_24%),linear-gradient(180deg,#050a12,#0a1320_45%,#07101a)] px-4 py-6 text-white md:px-6 md:py-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Image
               src="/logo.png"
@@ -257,131 +318,172 @@ export default async function CarnetPage({
               priority
             />
             <div>
-              <div className="text-xs font-black uppercase tracking-[0.22em] text-white/55">
+              <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/50">
                 {dictionary.carnet.brand.digitalBooklet}
               </div>
-              <div className="text-lg font-semibold text-white/92">{business.brand_name}</div>
+              <div className="mt-1 text-lg font-semibold text-white/92">{business.brand_name}</div>
             </div>
           </div>
           <LanguageSelector className="w-[170px]" dark />
         </div>
 
-        <section className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_360px]">
-          <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/6 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] backdrop-blur">
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_340px]">
+          <DashboardCard className="overflow-hidden">
             <div className="flex flex-wrap items-start justify-between gap-6">
               <div className="max-w-2xl">
-                <p className="text-sm font-black uppercase tracking-[0.24em] text-white/48">
+                <div className="inline-flex rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-white/55">
                   {dictionary.carnet.hero.vehicleSection}
-                </p>
-                <h1 className="mt-3 text-3xl font-black leading-tight md:text-5xl">{vehicleLabel}</h1>
-                <p className="mt-3 max-w-xl text-base text-white/70 md:text-lg">
+                </div>
+                <h1 className="mt-5 text-3xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
+                  {vehicleLabel}
+                </h1>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-white/70 md:text-lg">
                   {dictionary.carnet.hero.description}
                 </p>
               </div>
               {plateComponent}
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <div
-                dir="ltr"
-                className="rounded-full border border-white/10 bg-black/18 px-4 py-2 text-sm font-semibold text-white/82"
-              >
-                {dictionary.carnet.hero.registration}: {data.matricule || "-"}
-              </div>
-              <div className="rounded-full border border-white/10 bg-black/18 px-4 py-2 text-sm font-semibold text-white/82">
-                {dictionary.carnet.hero.type}: {getLocalizedPlateTypeLabel(plateTypeLabels[data.type], locale)}
-              </div>
-              {data.vehicule_annee ? (
-                <div
-                  dir="ltr"
-                  className="rounded-full border border-white/10 bg-black/18 px-4 py-2 text-sm font-semibold text-white/82"
-                >
-                  {dictionary.carnet.hero.year}: {data.vehicule_annee}
-                </div>
-              ) : null}
-              <div className="rounded-full border border-white/10 bg-black/18 px-4 py-2 text-sm font-semibold text-white/82">
-                {getInterventionCountLabel(sortedMaintenance.length, dictionary.carnet.history)}
-              </div>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StatPill
+                label={dictionary.carnet.hero.registration}
+                value={<span dir="ltr">{data.matricule || "-"}</span>}
+              />
+              <StatPill
+                label={dictionary.carnet.hero.type}
+                value={getLocalizedPlateTypeLabel(plateTypeLabels[data.type], locale)}
+              />
+              <StatPill
+                label={dictionary.carnet.hero.year}
+                value={<span dir="ltr">{data.vehicule_annee || dictionary.carnet.hero.notDefined}</span>}
+              />
+              <StatPill
+                label={dictionary.carnet.history.title}
+                value={getInterventionCountLabel(sortedMaintenance.length, dictionary.carnet.history)}
+              />
             </div>
 
-            <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-              <div className="rounded-[24px] border border-white/10 bg-black/18 p-5">
-                <div className="text-xs font-black uppercase tracking-[0.22em] text-white/45">
-                  {dictionary.carnet.hero.nextService}
+            <div className="mt-7 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
+              <div className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(9,17,31,0.76),rgba(8,14,24,0.92))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/42">
+                      {dictionary.carnet.hero.nextService}
+                    </div>
+                    <div className="mt-3 text-3xl font-semibold tracking-tight text-white md:text-4xl" dir="ltr">
+                      {nextService.km !== null
+                        ? formatKilometers(nextService.km, locale)
+                        : dictionary.carnet.hero.notDefined}
+                    </div>
+                  </div>
+                  <StatusBadge tone={maintenanceStatus.tone}>{maintenanceStatus.label}</StatusBadge>
                 </div>
-                <div className="mt-3 text-3xl font-black" dir="ltr">
-                  {nextService.km !== null
-                    ? formatKilometers(nextService.km, locale)
+
+                <div className="mt-4 text-sm font-semibold text-white/68">
+                  {remainingKm !== null
+                    ? formatMessage(dictionary.carnet.nextMaintenance.distance, {
+                        count: formatKilometers(remainingKm, locale),
+                      })
                     : dictionary.carnet.hero.notDefined}
                 </div>
-                <div className="mt-2 text-sm font-semibold text-white/65">
+                <div className="mt-2 text-sm text-white/58">
                   {formatMessage(dictionary.carnet.hero.basedOnLastService, {
                     date: nextService.date
                       ? formatDate(nextService.date, locale)
                       : dictionary.carnet.hero.notDefined,
                   })}
                 </div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <div className="text-xs font-black uppercase tracking-[0.18em] text-white/45">
-                      {dictionary.carnet.hero.creation}
-                    </div>
-                    <div className="mt-2 text-lg font-bold" dir="ltr">
-                      {formatDate(data.created_at, locale)}
-                    </div>
-                    <div className="mt-1 text-sm text-white/65">{dictionary.carnet.hero.creationHint}</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                    <div className="text-xs font-black uppercase tracking-[0.18em] text-white/45">
-                      {dictionary.carnet.hero.updated}
-                    </div>
-                    <div className="mt-2 text-lg font-bold" dir="ltr">
-                      {formatDate(data.updated_at, locale)}
-                    </div>
-                    <div className="mt-1 text-sm text-white/65">{dictionary.carnet.hero.updatedHint}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <aside className="rounded-[28px] border border-white/10 bg-white/6 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.25)] backdrop-blur">
-            <div className="text-xs font-black uppercase tracking-[0.22em] text-white/45">
-              {dictionary.carnet.summary.title}
-            </div>
-            <div className="mt-4 space-y-4">
-              <div className="rounded-2xl border border-white/10 bg-black/18 p-4">
-                <div className="text-sm text-white/55">{dictionary.carnet.summary.latestService}</div>
-                <div className="mt-2 text-base font-bold" dir="ltr">
-                  {latestEvent
-                    ? formatKilometers(latestEvent.kilometrage, locale)
-                    : dictionary.carnet.summary.none}
-                </div>
-                <div className="mt-1 text-sm text-white/65" dir="ltr">
-                  {latestEvent?.date_heure ? formatDate(latestEvent.date_heure, locale) : "-"}
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <div className="flex items-center gap-2 text-white/48">
+                      <GaugeIcon className="size-4" />
+                      <span className="text-[11px] font-black uppercase tracking-[0.18em]">
+                        {dictionary.carnet.nextMaintenance.latestMileage}
+                      </span>
+                    </div>
+                    <div className="mt-3 text-lg font-semibold text-white" dir="ltr">
+                      {latestEvent ? formatKilometers(latestEvent.kilometrage, locale) : dictionary.carnet.summary.none}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                    <div className="flex items-center gap-2 text-white/48">
+                      <CalendarIcon className="size-4" />
+                      <span className="text-[11px] font-black uppercase tracking-[0.18em]">
+                        {dictionary.carnet.summary.latestService}
+                      </span>
+                    </div>
+                    <div className="mt-3 text-lg font-semibold text-white" dir="ltr">
+                      {latestEvent?.date_heure ? formatDate(latestEvent.date_heure, locale) : "-"}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-black/18 p-4">
-                <div className="text-sm text-white/55">{dictionary.carnet.summary.timeline}</div>
-                <div className="mt-2 text-base font-bold" dir="ltr">
-                  {formatDate(data.created_at, locale)}
+
+              <div className="grid gap-3">
+                <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4">
+                  <div className="flex items-center gap-2 text-white/45">
+                    <QrIcon className="size-4" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">QR carnet</span>
+                  </div>
+                  <div className="mt-3 text-base font-semibold text-white/92">
+                    {dictionary.carnet.brand.digitalBooklet}
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-white/58">
+                    Historique, prochaines echeances et donnees atelier centralisees.
+                  </p>
                 </div>
-                <div className="mt-1 text-sm text-white/65">{dictionary.carnet.summary.bookletCreated}</div>
-                <div className="mt-4 text-base font-bold" dir="ltr">
-                  {formatDate(data.updated_at, locale)}
+                <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4">
+                  <div className="flex items-center gap-2 text-white/45">
+                    <CarIcon className="size-4" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                      {dictionary.carnet.hero.creation}
+                    </span>
+                  </div>
+                  <div className="mt-3 text-base font-semibold text-white" dir="ltr">
+                    {formatDate(data.created_at, locale)}
+                  </div>
+                  <div className="mt-1 text-sm text-white/58">{dictionary.carnet.hero.creationHint}</div>
                 </div>
-                <div className="mt-1 text-sm text-white/65">{dictionary.carnet.summary.bookletUpdated}</div>
+                <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4">
+                  <div className="flex items-center gap-2 text-white/45">
+                    <CalendarIcon className="size-4" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                      {dictionary.carnet.hero.updated}
+                    </span>
+                  </div>
+                  <div className="mt-3 text-base font-semibold text-white" dir="ltr">
+                    {formatDate(data.updated_at, locale)}
+                  </div>
+                  <div className="mt-1 text-sm text-white/58">{dictionary.carnet.hero.updatedHint}</div>
+                </div>
               </div>
             </div>
-          </aside>
+          </DashboardCard>
+
+          <DashboardCard>
+            <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/42">
+              {dictionary.carnet.hero.timelineTitle}
+            </div>
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">{dictionary.carnet.summary.timeline}</h2>
+            <p className="mt-3 text-sm leading-6 text-white/58">{dictionary.carnet.hero.timelineDescription}</p>
+            <div className="mt-8">
+              <Timeline items={timelineItems} rtl={dir === "rtl"} />
+            </div>
+          </DashboardCard>
         </section>
 
         <section className="mt-8">
-          <div className="mb-4">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-white/45">
-              {dictionary.carnet.history.eyebrow}
-            </p>
-            <h2 className="mt-2 text-2xl font-black">{dictionary.carnet.history.title}</h2>
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-white/42">
+                {dictionary.carnet.history.eyebrow}
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+                {dictionary.carnet.history.title}
+              </h2>
+            </div>
+            <StatusBadge tone="blue">{getInterventionCountLabel(sortedMaintenance.length, dictionary.carnet.history)}</StatusBadge>
           </div>
 
           <MaintenanceCarousel

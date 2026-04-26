@@ -10,50 +10,87 @@
   "landing": {
     "nav": {
       "services": "Services",
-      "contact": "Contact",
-      "location": "Localisation"
+      "booklet": "Carnet digital",
+      "about": "A propos",
+      "contact": "Contact"
     },
     "cta": {
       "book": "Prendre RDV",
-      "viewServices": "Voir nos services",
-      "findUs": "Nous trouver",
+      "viewServices": "Decouvrir nos services",
+      "viewBooklet": "Voir mon carnet",
       "whatsapp": "Envoyer sur WhatsApp",
       "email": "Envoyer un message",
-      "directions": "Itineraire"
+      "directions": "Itineraire",
+      "bookletAnchor": "Acceder au carnet digital"
     },
     "hero": {
-      "title": "Entretien auto clair, suivi digital, service premium.",
-      "description": "Chaque intervention est tracee dans votre carnet d'entretien accessible par QR code.",
+      "eyebrow": "Entretien automobile premium a {{city}}",
+      "headlineStart": "Votre voiture.",
+      "headlineMiddle": "Transparente. Suivie.",
+      "headlineAccent": "Maitrisee.",
+      "description": "Chaque intervention tracee. Historique accessible instantanement par QR code.",
       "workshopAlt": "Facade de l'atelier {{brand_name}}",
       "workshopCaption": "Notre atelier {{brand_name}}, a {{city}}."
     },
+    "trust": {
+      "title": "Une experience claire, premium, sans friction.",
+      "description": "Le meme niveau d'exigence a l'atelier et dans votre experience digitale.",
+      "items": [
+        {
+          "title": "Transparence totale",
+          "desc": "Chaque intervention, piece et kilometrage restent visibles dans votre historique."
+        },
+        {
+          "title": "Suivi en temps reel",
+          "desc": "Consultez vos derniers entretiens et vos prochaines echeances a tout moment."
+        },
+        {
+          "title": "Donnees securisees",
+          "desc": "Votre carnet digital reste centralise, stable et accessible via QR code."
+        }
+      ]
+    },
     "servicesIntro": {
       "title": "Services",
-      "description": "Des prestations essentielles, avec tracabilite dans votre carnet."
+      "description": "Des prestations essentielles executees avec rigueur, clarte et tracabilite."
     },
     "services": [
-      { "title": "Vidange & filtres", "desc": "Huile, filtre a huile, air et habitacle." },
-      { "title": "Freinage", "desc": "Plaquettes, disques, purge et controle securite." },
-      { "title": "Reparation pare-brise", "desc": "Fissures, rayures et polissage." },
-      { "title": "Diagnostic", "desc": "Valise, voyants et controle electronique." },
-      { "title": "Entretien complet", "desc": "Revision constructeur et check-up global." },
-      { "title": "Climatisation", "desc": "Recharge, detection de fuite et desinfection." },
-      { "title": "Lavage / detailing", "desc": "Nettoyage interieur et exterieur premium." }
+      { "title": "Vidange & filtres", "desc": "Huile, filtre a huile, air et habitacle.", "link": "Voir details" },
+      { "title": "Freinage", "desc": "Plaquettes, disques, purge et controle securite.", "link": "Voir details" },
+      { "title": "Reparation pare-brise", "desc": "Fissures, rayures et polissage.", "link": "Voir details" },
+      { "title": "Diagnostic", "desc": "Valise, voyants et controle electronique.", "link": "Voir details" },
+      { "title": "Entretien complet", "desc": "Revision constructeur et check-up global.", "link": "Voir details" },
+      { "title": "Climatisation", "desc": "Recharge, detection de fuite et desinfection.", "link": "Voir details" },
+      { "title": "Lavage / detailing", "desc": "Nettoyage interieur et exterieur premium.", "link": "Voir details" }
     ],
-    "highlights": [
-      { "title": "Transparence", "desc": "Details clairs et kilometrage conserve." },
-      { "title": "Qualite", "desc": "Pieces, huiles et consommables suivis." },
-      { "title": "Suivi", "desc": "Prochain entretien disponible par QR code." }
+    "booklet": {
+      "title": "Un simple QR code, tout l'historique.",
+      "description": "Chaque vehicule repart avec un carnet digital clair, partageable et facile a consulter."
+    },
+    "stats": [
+      { "value": "+1200", "label": "vehicules suivis" },
+      { "value": "100%", "label": "transparence" },
+      { "value": "+8 ans", "label": "d'experience" }
     ],
+    "about": {
+      "title": "Une station auto pensee comme un service fiable.",
+      "description": "MecaUp Station combine entretien, lavage et suivi digital dans une experience plus moderne, plus lisible et plus rassurante pour chaque client.",
+      "points": [
+        "Accueil clair et conseil direct a l'atelier",
+        "Prestations suivies dans un carnet digital structure",
+        "Acces simple pour retrouver l'historique et planifier la suite"
+      ]
+    },
     "contact": {
       "title": "Contact",
+      "description": "Prenez rendez-vous, envoyez-nous un message ou venez directement a l'atelier.",
       "phone": "Telephone",
       "whatsapp": "WhatsApp",
       "email": "Email",
       "hours": "Horaires"
     },
     "location": {
-      "title": "Localisation"
+      "title": "Nous trouver"
     },
     "footer": {
       "rights": "Tous droits reserves."
@@ -90,7 +127,9 @@
       "creation": "Creation",
       "creationHint": "Premier enregistrement du vehicule",
       "updated": "Mise a jour",
-      "updatedHint": "Derniere synchronisation backend"
+      "updatedHint": "Derniere synchronisation backend",
+      "timelineTitle": "Chronologie",
+      "timelineDescription": "Les moments clefs du carnet, de la creation a la prochaine echeance."
     },
     "summary": {
       "title": "Resume",
@@ -99,6 +138,24 @@
       "timeline": "Chronologie",
       "bookletCreated": "Creation du carnet",
       "bookletUpdated": "Derniere mise a jour"
+    },
+    "timeline": {
+      "created": "Creation",
+      "lastService": "Derniere intervention",
+      "today": "Aujourd'hui",
+      "nextService": "Prochain entretien",
+      "createdHint": "Ouverture du carnet digital",
+      "lastServiceHint": "Derniere intervention enregistree",
+      "todayHint": "Etat actuel du suivi",
+      "nextServiceHint": "Echeance estimee"
+    },
+    "nextMaintenance": {
+      "safe": "Entretien sous controle",
+      "soon": "A prevoir bientot",
+      "overdue": "A planifier maintenant",
+      "unknown": "Echeance a confirmer",
+      "distance": "Dans {count}",
+      "latestMileage": "Dernier kilometrage enregistre"
     },
     "history": {
       "eyebrow": "Historique d'entretien",
@@ -114,6 +171,9 @@
       "previous": "Intervention precedente",
       "next": "Intervention suivante",
       "date": "Date intervention",
+      "mileage": "Kilometrage",
+      "statusRecorded": "Enregistre",
+      "statusPending": "A verifier",
       "empty": "Aucun entretien enregistre pour ce carnet.",
       "emptyDetails": "Aucun detail enregistre.",
       "goTo": "Afficher l'intervention {count}"

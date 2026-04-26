@@ -10,50 +10,87 @@
   "landing": {
     "nav": {
       "services": "Services",
-      "contact": "Contact",
-      "location": "Location"
+      "booklet": "Digital booklet",
+      "about": "About",
+      "contact": "Contact"
     },
     "cta": {
-      "book": "Book Now",
-      "viewServices": "See our services",
-      "findUs": "Find us",
+      "book": "Book now",
+      "viewServices": "Discover our services",
+      "viewBooklet": "See my booklet",
       "whatsapp": "Send on WhatsApp",
       "email": "Send a message",
-      "directions": "Get directions"
+      "directions": "Get directions",
+      "bookletAnchor": "Open the digital booklet"
     },
     "hero": {
-      "title": "Clear car care, digital tracking, premium service.",
-      "description": "Every service visit is logged in your maintenance booklet, accessible by QR code.",
+      "eyebrow": "Premium car care in {{city}}",
+      "headlineStart": "Your car.",
+      "headlineMiddle": "Transparent. Tracked.",
+      "headlineAccent": "Mastered.",
+      "description": "Every intervention recorded. History instantly accessible by QR code.",
       "workshopAlt": "{{brand_name}} workshop front",
       "workshopCaption": "Our {{brand_name}} workshop in {{city}}."
     },
+    "trust": {
+      "title": "A cleaner, premium experience from workshop to screen.",
+      "description": "The same attention to quality in the garage and in your digital follow-up.",
+      "items": [
+        {
+          "title": "Full transparency",
+          "desc": "Every intervention, part, and mileage update stays visible in your history."
+        },
+        {
+          "title": "Real-time follow-up",
+          "desc": "Check your latest services and upcoming maintenance milestones anytime."
+        },
+        {
+          "title": "Secure records",
+          "desc": "Your digital booklet stays centralized, stable, and accessible through QR code."
+        }
+      ]
+    },
     "servicesIntro": {
       "title": "Services",
-      "description": "Essential services with full traceability in your maintenance booklet."
+      "description": "Core workshop services delivered with clarity, consistency, and traceability."
     },
     "services": [
-      { "title": "Oil change & filters", "desc": "Oil, oil filter, air filter, and cabin filter." },
-      { "title": "Brakes", "desc": "Pads, discs, bleeding, and safety inspection." },
-      { "title": "Windshield repair", "desc": "Cracks, scratches, and polishing." },
-      { "title": "Diagnostics", "desc": "Scan tool, warning lights, and electronic checks." },
-      { "title": "Full service", "desc": "Manufacturer service and full vehicle check-up." },
-      { "title": "Air conditioning", "desc": "Recharge, leak detection, and disinfection." },
-      { "title": "Wash / detailing", "desc": "Premium interior and exterior cleaning." }
+      { "title": "Oil change & filters", "desc": "Oil, oil filter, air filter, and cabin filter.", "link": "See details" },
+      { "title": "Brakes", "desc": "Pads, discs, bleeding, and safety inspection.", "link": "See details" },
+      { "title": "Windshield repair", "desc": "Cracks, scratches, and polishing.", "link": "See details" },
+      { "title": "Diagnostics", "desc": "Scan tool, warning lights, and electronic checks.", "link": "See details" },
+      { "title": "Full service", "desc": "Manufacturer service and full vehicle check-up.", "link": "See details" },
+      { "title": "Air conditioning", "desc": "Recharge, leak detection, and disinfection.", "link": "See details" },
+      { "title": "Wash / detailing", "desc": "Premium interior and exterior cleaning.", "link": "See details" }
     ],
-    "highlights": [
-      { "title": "Transparency", "desc": "Clear details and mileage history kept safely." },
-      { "title": "Quality", "desc": "Tracked parts, oils, and consumables." },
-      { "title": "Follow-up", "desc": "Your next service is available through the QR code." }
+    "booklet": {
+      "title": "One QR code, the full history.",
+      "description": "Every vehicle leaves with a clean digital booklet that is easy to share and easy to read."
+    },
+    "stats": [
+      { "value": "+1200", "label": "vehicles tracked" },
+      { "value": "100%", "label": "transparency" },
+      { "value": "+8 years", "label": "of experience" }
     ],
+    "about": {
+      "title": "An auto station designed as a reliable service experience.",
+      "description": "MecaUp Station brings maintenance, wash care, and digital follow-up into one modern, clearer, and more reassuring customer journey.",
+      "points": [
+        "Clear welcome and direct guidance at the workshop",
+        "Services tracked in a structured digital booklet",
+        "Simple access to vehicle history and next maintenance planning"
+      ]
+    },
     "contact": {
       "title": "Contact",
+      "description": "Book an appointment, send us a message, or come straight to the workshop.",
       "phone": "Phone",
       "whatsapp": "WhatsApp",
       "email": "Email",
       "hours": "Hours"
     },
     "location": {
-      "title": "Location"
+      "title": "Find us"
     },
     "footer": {
       "rights": "All rights reserved."
@@ -84,13 +121,15 @@
       "registration": "Registration",
       "type": "Type",
       "year": "Year",
-      "nextService": "Next service",
+      "nextService": "Next maintenance",
       "notDefined": "Not set",
       "basedOnLastService": "Based on the latest service: {date}",
       "creation": "Created",
       "creationHint": "First vehicle record",
       "updated": "Updated",
-      "updatedHint": "Latest backend sync"
+      "updatedHint": "Latest backend sync",
+      "timelineTitle": "Timeline",
+      "timelineDescription": "The key moments of the booklet, from creation to the next milestone."
     },
     "summary": {
       "title": "Summary",
@@ -99,6 +138,24 @@
       "timeline": "Timeline",
       "bookletCreated": "Booklet created",
       "bookletUpdated": "Last update"
+    },
+    "timeline": {
+      "created": "Created",
+      "lastService": "Latest service",
+      "today": "Today",
+      "nextService": "Next maintenance",
+      "createdHint": "Digital booklet opened",
+      "lastServiceHint": "Most recent recorded intervention",
+      "todayHint": "Current tracking status",
+      "nextServiceHint": "Estimated next milestone"
+    },
+    "nextMaintenance": {
+      "safe": "Maintenance on track",
+      "soon": "Coming soon",
+      "overdue": "Plan it now",
+      "unknown": "Schedule to confirm",
+      "distance": "In {count}",
+      "latestMileage": "Latest recorded mileage"
     },
     "history": {
       "eyebrow": "Maintenance history",
@@ -114,6 +171,9 @@
       "previous": "Previous service",
       "next": "Next service",
       "date": "Service date",
+      "mileage": "Mileage",
+      "statusRecorded": "Recorded",
+      "statusPending": "To review",
       "empty": "No maintenance record found for this booklet.",
       "emptyDetails": "No details recorded.",
       "goTo": "Show service {count}"
